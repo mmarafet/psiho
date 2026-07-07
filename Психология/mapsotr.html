@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Карта сотрудника</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #eee;
+  max-width: 900px;
+  margin: 40px auto;
+  line-height: 1.5;
+}
+h1, h2 { color: #ffd36a; }
+.card {
+  background: #1d1d1d;
+  padding: 18px;
+  margin: 18px 0;
+  border-radius: 12px;
+}
+label {
+  display: block;
+  margin: 10px 0;
+  cursor: pointer;
+}
+button {
+  background: #ffd36a;
+  border: none;
+  padding: 14px 22px;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.result {
+  background: #262626;
+  padding: 20px;
+  margin-top: 25px;
+  border-radius: 12px;
+  border-left: 5px solid #ffd36a;
+}
+.small { color: #aaa; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>Карта сотрудника</h1>
+<p>Ответь честно. Это не диагноз, а управленческий профиль.</p>
+
+<form id="test">
+
+<div class="card">
+<h2>1. Что сильнее всего тебя двигает?</h2>
+
+<label><input type="radio" name="engine" value="money">
+Деньги, стабильность, ипотека, кредиты, семья, обязательства.</label>
+
+<label><input type="radio" name="engine" value="status">
+Признание, уважение, статус, чтобы со мной считались.</label>
+
+<label><input type="radio" name="engine" value="achievement">
+Результат, победа, рост, ощущение “я смог”.</label>
+
+<label><input type="radio" name="engine" value="interest">
+Интерес, новое, сложные задачи, развитие.</label>
+
+<label><input type="radio" name="engine" value="people">
+Команда, нормальная атмосфера, отношения, поддержка.</label>
+</div>
+
+<div class="card">
+<h2>2. Как ты принимаешь решения?</h2>
+
+<label><input type="radio" name="decision" value="fast">
+Быстро. Лучше сделать и поправить.</label>
+
+<label><input type="radio" name="decision" value="analytic">
+Сначала всё обдумать, собрать данные.</label>
+
+<label><input type="radio" name="decision" value="practical">
+Пробую руками. Через действие понимаю.</label>
+</div>
+
+<div class="card">
+<h2>3. Как ты относишься к ответственности?</h2>
+
+<label><input type="radio" name="responsibility" value="owner">
+Беру на себя. Ищу решение.</label>
+
+<label><input type="radio" name="responsibility" value="executor">
+Делаю то, что сказали. Без лишней самодеятельности.</label>
+
+<label><input type="radio" name="responsibility" value="avoid">
+Стараюсь не брать лишнее, чтобы потом не прилетело.</label>
+</div>
+
+<div class="card">
+<h2>4. Чего ты больше боишься на работе?</h2>
+
+<label><input type="radio" name="fear" value="mistake">
+Ошибиться и получить последствия.</label>
+
+<label><input type="radio" name="fear" value="conflict">
+Конфликта, напряжения, испортить отношения.</label>
+
+<label><input type="radio" name="fear" value="money">
+Потерять деньги, стабильность, место.</label>
+
+<label><input type="radio" name="fear" value="stupid">
+Выглядеть глупо или некомпетентно.</label>
+
+<label><input type="radio" name="fear" value="control">
+Потерять контроль над ситуацией.</label>
+</div>
+
+<div class="card">
+<h2>5. Как ты ведёшь себя в стрессе?</h2>
+
+<label><input type="radio" name="stress" value="attack">
+Спорю, давлю, защищаюсь.</label>
+
+<label><input type="radio" name="stress" value="hide">
+Ухожу, молчу, тяну время.</label>
+
+<label><input type="radio" name="stress" value="freeze">
+Замираю, теряюсь, не знаю что делать.</label>
+
+<label><input type="radio" name="stress" value="collect">
+Собираюсь и становлюсь эффективнее.</label>
+</div>
+
+<div class="card">
+<h2>6. Уровень самостоятельности</h2>
+
+<label><input type="radio" name="level" value="1">
+1 — жду указаний.</label>
+
+<label><input type="radio" name="level" value="2">
+2 — работаю по инструкции.</label>
+
+<label><input type="radio" name="level" value="3">
+3 — предлагаю решения.</label>
+
+<label><input type="radio" name="level" value="4">
+4 — сам решаю проблемы.</label>
+
+<label><input type="radio" name="level" value="5">
+5 — могу управлять людьми.</label>
+</div>
+
+<button type="button" onclick="calculate()">Показать мой тип</button>
+
+</form>
+
+<div id="result" class="result" style="display:none;"></div>
+
+<script>
+function getValue(name) {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? checked.value : null;
+}
+
+function calculate() {
+  const engine = getValue("engine");
+  const decision = getValue("decision");
+  const responsibility = getValue("responsibility");
+  const fear = getValue("fear");
+  const stress = getValue("stress");
+  const level = getValue("level");
+
+  if (!engine || !decision || !responsibility || !fear || !stress || !level) {
+    alert("Ответь на все вопросы.");
+    return;
+  }
+
+  let type = "";
+  let description = "";
+  let management = "";
+  let risk = "";
+
+  if (responsibility === "owner" && Number(level) >= 4) {
+    type = "👑 Капитан";
+    description = "Ты берёшь ответственность и можешь тащить систему.";
+    management = "Тебе нужны цель, полномочия и доверие.";
+    risk = "Риск: перегруз, желание всё контролировать самому.";
+  } 
+  else if (engine === "interest" && decision !== "analytic") {
+    type = "🔥 Авантюрист";
+    description = "Тебя двигают новое, движение и интерес.";
+    management = "Тебе подходят проекты, эксперименты, нестандартные задачи.";
+    risk = "Риск: быстро загораешься и так же быстро остываешь.";
+  }
+  else if (engine === "achievement") {
+    type = "⚔ Воин";
+    description = "Тебя двигают результат, победа и достижение.";
+    management = "Тебе нужны понятные цели, сроки и критерии успеха.";
+    risk = "Риск: можешь давить, спорить и выгорать в гонке.";
+  }
+  else if (engine === "money") {
+    type = "🏰 Хранитель";
+    description = "Тебе важны стабильность, порядок и предсказуемость.";
+    management = "Тебе нужны понятные правила, безопасность и стабильный доход.";
+    risk = "Риск: сопротивление изменениям и страх риска.";
+  }
+  else if (engine === "people") {
+    type = "🤝 Дипломат";
+    description = "Тебе важны отношения, атмосфера и команда.";
+    management = "Тебе нужна нормальная коммуникация и чувство участия.";
+    risk = "Риск: избегание конфликтов и сложных разговоров.";
+  }
+  else if (decision === "analytic") {
+    type = "🧠 Мастер";
+    description = "Ты силён в качестве, анализе и точности.";
+    management = "Тебе нужны время, данные и уважение к экспертности.";
+    risk = "Риск: затягивание решений и перфекционизм.";
+  }
+  else {
+    type = "👨‍💼 Исполнитель";
+    description = "Ты лучше работаешь, когда задача понятна и структурирована.";
+    management = "Тебе нужны инструкции, контрольные точки и ясный результат.";
+    risk = "Риск: без ясной постановки можешь зависать.";
+  }
+
+  let fearText = {
+    mistake: "Главный страх: ошибиться.",
+    conflict: "Главный страх: конфликт.",
+    money: "Главный страх: потерять стабильность.",
+    stupid: "Главный страх: выглядеть некомпетентно.",
+    control: "Главный страх: потерять контроль."
+  }[fear];
+
+  let stressText = {
+    attack: "В стрессе ты скорее атакуешь.",
+    hide: "В стрессе ты скорее уходишь в сторону.",
+    freeze: "В стрессе ты можешь замирать.",
+    collect: "В стрессе ты умеешь собираться."
+  }[stress];
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("result").innerHTML = `
+    <h2>${type}</h2>
+    <p><b>Профиль:</b> ${description}</p>
+    <p><b>Как с тобой работать:</b> ${management}</p>
+    <p><b>Уязвимость:</b> ${risk}</p>
+    <p><b>${fearText}</b></p>
+    <p><b>${stressText}</b></p>
+    <p><b>Самостоятельность:</b> ${level}/5</p>
+    <hr>
+    <p class="small">Это не психология ради психологии. Это карта управления: мотивация, страх, ответственность, стресс и самостоятельность.</p>
+  `;
+}
+</script>
+
+</body>
+</html>
