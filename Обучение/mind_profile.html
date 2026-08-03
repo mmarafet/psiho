@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Профиль мышления — интерактивная анкета</title>
+  <style>
+    :root{
+      --bg:#081019;
+      --panel:#101b27;
+      --panel-2:#152332;
+      --line:rgba(255,255,255,.10);
+      --text:#eef6ff;
+      --muted:#9fb1c4;
+      --accent:#70e1c5;
+      --accent-2:#7fa8ff;
+      --warn:#ffd166;
+      --danger:#ff7d8d;
+      --shadow:0 22px 70px rgba(0,0,0,.32);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(112,225,197,.14), transparent 28rem),
+        radial-gradient(circle at 92% 10%, rgba(127,168,255,.13), transparent 26rem),
+        linear-gradient(145deg,#071019 0%,#0b121c 58%,#071017 100%);
+    }
+    button{font:inherit}
+    .app{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:28px 0 52px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      margin-bottom:20px
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:46px;height:46px;border-radius:15px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#071019;font-weight:900;box-shadow:0 12px 35px rgba(112,225,197,.18)
+    }
+    .brand strong{display:block;font-size:16px}
+    .brand span{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+    .ghost{
+      border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--text);
+      padding:10px 14px;border-radius:13px;cursor:pointer;transition:.2s
+    }
+    .ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-1px)}
+    .hero{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:20px;margin-bottom:20px
+    }
+    .card{
+      background:linear-gradient(180deg,rgba(21,35,50,.94),rgba(13,24,35,.96));
+      border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
+    }
+    .intro{padding:34px}
+    .eyebrow{
+      color:var(--accent);font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+      font-size:12px;margin-bottom:14px
+    }
+    h1{font-size:clamp(34px,5vw,60px);line-height:1.02;margin:0 0 18px;letter-spacing:-.045em}
+    .lead{font-size:17px;line-height:1.65;color:#c7d4e2;max-width:720px}
+    .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+    .chip{
+      padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.055);
+      border:1px solid var(--line);color:#cfe0ef;font-size:13px
+    }
+    .side{padding:26px}
+    .side h2{margin:0 0 16px;font-size:18px}
+    .scale{
+      display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:18px
+    }
+    .scale div{
+      min-height:72px;padding:10px 6px;border:1px solid var(--line);border-radius:15px;
+      background:rgba(255,255,255,.035);display:grid;place-items:center;text-align:center
+    }
+    .scale b{display:block;font-size:18px;color:var(--accent)}
+    .scale span{display:block;font-size:10px;color:var(--muted);margin-top:4px;line-height:1.2}
+    .note{
+      margin-top:18px;padding:14px 16px;border-radius:15px;background:rgba(255,209,102,.08);
+      border:1px solid rgba(255,209,102,.18);color:#f4ddb1;font-size:13px;line-height:1.5
+    }
+    .quiz{padding:24px;display:none}
+    .quiz.active{display:block}
+    .progress-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px}
+    .progress-row span{color:var(--muted);font-size:13px}
+    .progress{
+      height:10px;border-radius:999px;background:rgba(255,255,255,.06);
+      overflow:hidden;border:1px solid rgba(255,255,255,.05)
+    }
+    .progress > div{
+      height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      transition:width .35s ease
+    }
+    .question-wrap{min-height:370px;display:grid;align-content:center;padding:28px 6px 18px}
+    .question-number{color:var(--accent);font-weight:800;font-size:13px;margin-bottom:12px}
+    .question{
+      font-size:clamp(25px,4vw,42px);line-height:1.15;letter-spacing:-.03em;
+      margin:0 0 28px;max-width:900px
+    }
+    .answers{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .answer{
+      border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);
+      border-radius:18px;padding:18px 10px;cursor:pointer;min-height:100px;
+      transition:.2s;display:flex;flex-direction:column;justify-content:center;align-items:center
+    }
+    .answer:hover{transform:translateY(-2px);border-color:rgba(112,225,197,.55);background:rgba(112,225,197,.07)}
+    .answer.selected{
+      border-color:var(--accent);background:linear-gradient(180deg,rgba(112,225,197,.16),rgba(127,168,255,.09));
+      box-shadow:0 0 0 3px rgba(112,225,197,.08)
+    }
+    .answer b{font-size:24px}
+    .answer span{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.25}
+    .nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+    .btn{
+      border:0;border-radius:15px;padding:13px 18px;cursor:pointer;font-weight:800;
+      transition:.2s
+    }
+    .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+    .btn-primary{
+      color:#071019;background:linear-gradient(135deg,var(--accent),#a7f3e2)
+    }
+    .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 24px rgba(112,225,197,.18)}
+    .btn-secondary{color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--line)}
+    .results{display:none}
+    .results.active{display:block}
+    .results-head{padding:30px;margin-bottom:20px}
+    .results-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px}
+    .chart-card,.summary-card{padding:24px}
+    canvas{width:100%;max-width:520px;aspect-ratio:1;margin:0 auto;display:block}
+    .result-list{display:grid;gap:11px;margin-top:18px}
+    .result-item{
+      padding:15px;border:1px solid var(--line);background:rgba(255,255,255,.03);
+      border-radius:16px
+    }
+    .result-top{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:9px}
+    .result-top strong{font-size:15px}
+    .result-top b{color:var(--accent);font-size:17px}
+    .bar{height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+    .bar > div{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .result-item p{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+    .recommendation{
+      margin-top:20px;padding:22px;border-radius:18px;background:
+      linear-gradient(135deg,rgba(112,225,197,.11),rgba(127,168,255,.10));
+      border:1px solid rgba(112,225,197,.2)
+    }
+    .recommendation h3{margin:0 0 10px;font-size:20px}
+    .recommendation p{margin:0;color:#d8e5f1;line-height:1.65}
+    .formula{
+      margin-top:14px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.18);
+      color:#dffbf4;font-weight:700;line-height:1.5
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .footnote{color:var(--muted);font-size:12px;line-height:1.55;margin-top:18px}
+    .hidden{display:none!important}
+    @media(max-width:850px){
+      .hero,.results-grid{grid-template-columns:1fr}
+      .question-wrap{min-height:auto;padding-top:30px}
+    }
+    @media(max-width:620px){
+      .app{width:min(100% - 18px,1120px);padding-top:14px}
+      .intro,.side,.quiz,.results-head,.chart-card,.summary-card{padding:20px}
+      .topbar{align-items:flex-start}
+      .brand span{max-width:210px}
+      .answers{grid-template-columns:1fr}
+      .answer{min-height:68px;flex-direction:row;justify-content:flex-start;gap:16px;padding:14px 16px}
+      .answer span{text-align:left;margin-top:0;font-size:12px}
+      .scale{grid-template-columns:1fr}
+      .scale div{min-height:auto;display:flex;justify-content:flex-start;gap:10px;text-align:left}
+      .question{font-size:27px}
+    }
+    @media print{
+      body{background:#fff;color:#111}
+      .topbar,.hero,.quiz,.actions{display:none!important}
+      .results{display:block!important}
+      .card{box-shadow:none;background:#fff;border:1px solid #ddd;color:#111}
+      .result-item,.recommendation{background:#fff;color:#111}
+      .result-item p,.footnote,.recommendation p{color:#444}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">PM</div>
+        <div><strong>Профиль мышления</strong><span>Самооценка способов понимания и обучения</span></div>
+      </div>
+      <button class="ghost" id="resetTop">Сбросить</button>
+    </div>
+
+    <section class="hero" id="startScreen">
+      <article class="card intro">
+        <div class="eyebrow">Интерактивная анкета</div>
+        <h1>Как именно работает ваше мышление?</h1>
+        <p class="lead">
+          Ответьте на 32 коротких утверждения. В результате вы получите распределение восьми профилей мышления,
+          диаграмму сильных сторон и краткую рекомендацию по обучению.
+        </p>
+        <div class="chips">
+          <span class="chip">≈ 5–7 минут</span>
+          <span class="chip">32 утверждения</span>
+          <span class="chip">8 профилей</span>
+          <span class="chip">Работает без интернета</span>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="startBtn">Начать анкету</button>
+          <button class="btn btn-secondary hidden" id="continueBtn">Продолжить</button>
+        </div>
+      </article>
+
+      <aside class="card side">
+        <h2>Как отвечать</h2>
+        <p class="lead" style="font-size:14px;margin:0">
+          Оценивайте не то, каким хотелось бы быть, а то, как вы обычно думаете и учитесь в реальной жизни.
+        </p>
+        <div class="scale">
+          <div><b>1</b><span>Совсем не про меня</span></div>
+          <div><b>2</b><span>Скорее не про меня</span></div>
+          <div><b>3</b><span>Иногда / зависит</span></div>
+          <div><b>4</b><span>Часто про меня</span></div>
+          <div><b>5</b><span>Очень точно</span></div>
+        </div>
+        <div class="note">
+          Это не медицинская диагностика и не «ярлык личности». Результат показывает текущие предпочтения,
+          а не жёсткие врождённые типы.
+        </div>
+      </aside>
+    </section>
+
+    <section class="card quiz" id="quizScreen">
+      <div class="progress-row">
+        <span id="progressText">Вопрос 1 из 32</span>
+        <span id="answeredText">Отвечено: 0</span>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+
+      <div class="question-wrap">
+        <div class="question-number" id="questionNumber">УТВЕРЖДЕНИЕ 1</div>
+        <h2 class="question" id="questionText"></h2>
+        <div class="answers" id="answers"></div>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-secondary" id="prevBtn">← Назад</button>
+        <button class="btn btn-primary" id="nextBtn">Далее →</button>
+      </div>
+    </section>
+
+    <section class="results" id="resultsScreen">
+      <article class="card results-head">
+        <div class="eyebrow">Ваш результат</div>
+        <h1 style="font-size:clamp(34px,5vw,52px)">Карта профилей мышления</h1>
+        <p class="lead" id="headlineText"></p>
+      </article>
+
+      <div class="results-grid">
+        <article class="card chart-card">
+          <h2 style="margin-top:0">Баланс профилей</h2>
+          <canvas id="radar" width="680" height="680"></canvas>
+          <p class="footnote">Проценты — относительная доля каждого профиля в общей картине. Сумма равна 100%.</p>
+        </article>
+
+        <article class="card summary-card">
+          <h2 style="margin-top:0">Распределение</h2>
+          <div class="result-list" id="resultList"></div>
+        </article>
+      </div>
+
+      <article class="card summary-card" style="margin-top:20px">
+        <div class="recommendation">
+          <h3>Короткая рекомендация</h3>
+          <p id="recommendationText"></p>
+          <div class="formula" id="formulaText"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="copyBtn">Скопировать результат</button>
+          <button class="btn btn-secondary" onclick="window.print()">Сохранить в PDF</button>
+          <button class="btn btn-secondary" id="restartBtn">Пройти заново</button>
+        </div>
+
+        <p class="footnote">
+          Высокий процент не означает «лучше», а низкий — «хуже». Смысл анкеты в том, чтобы подобрать более
+          естественный способ входа в новую тему и затем всё равно закреплять знания практикой и воспроизведением.
+        </p>
+      </article>
+    </section>
+  </main>
+
+<script>
+const profiles = {
+  analytical: {
+    name: "Аналитическое",
+    short: "Анализ",
+    desc: "Логика, точность, проверка аргументов и причинно-следственных связей.",
+    learn: "начинайте с определений, критериев, сравнений и задач с проверяемым ответом"
+  },
+  systems: {
+    name: "Системное",
+    short: "Система",
+    desc: "Понимание структуры, взаимосвязей, уровней и общей картины.",
+    learn: "сначала стройте карту темы, затем изучайте отдельные блоки и связи между ними"
+  },
+  visual: {
+    name: "Визуально-пространственное",
+    short: "Визуал",
+    desc: "Схемы, образы, расположение объектов и пространственные модели.",
+    learn: "используйте схемы, карты, цветовые метки, рисунки и наглядные примеры"
+  },
+  verbal: {
+    name: "Вербально-концептуальное",
+    short: "Слова",
+    desc: "Формулировки, понятия, чтение, объяснение и точность языка.",
+    learn: "читайте, пересказывайте своими словами и формулируйте краткие тезисы"
+  },
+  practical: {
+    name: "Практико-экспериментальное",
+    short: "Практика",
+    desc: "Обучение через действие, пробу, ошибку и непосредственный опыт.",
+    learn: "как можно раньше переходите к упражнению, прототипу или реальной задаче"
+  },
+  creative: {
+    name: "Творческо-дивергентное",
+    short: "Идеи",
+    desc: "Новые варианты, ассоциации, необычные ходы и переосмысление условий.",
+    learn: "придумывайте альтернативы, аналогии, собственные примеры и мини-проекты"
+  },
+  social: {
+    name: "Социально-диалоговое",
+    short: "Диалог",
+    desc: "Осмысление через обсуждение, вопросы, обратную связь и совместную работу.",
+    learn: "обсуждайте материал, задавайте вопросы и объясняйте его другому человеку"
+  },
+  reflective: {
+    name: "Рефлексивно-метакогнитивное",
+    short: "Рефлексия",
+    desc: "Наблюдение за собственным мышлением, паузы, самоанализ и корректировка стратегии.",
+    learn: "делайте паузы, ведите краткие заметки и проверяйте, что действительно поняли"
+  }
+};
+
+const questions = [
+  {p:"analytical", t:"Мне легче принять идею, когда я вижу доказательства, критерии и логическую цепочку."},
+  {p:"systems", t:"Перед изучением деталей мне важно понять общую структуру темы."},
+  {p:"visual", t:"Сложный материал становится понятнее, когда его можно представить схемой или рисунком."},
+  {p:"verbal", t:"Я замечаю неточные формулировки и стараюсь подобрать более точные слова."},
+  {p:"practical", t:"Я по-настоящему понимаю устройство вещи только после самостоятельной попытки."},
+  {p:"creative", t:"Я легко придумываю несколько разных способов решить одну и ту же задачу."},
+  {p:"social", t:"В разговоре с другим человеком я часто понимаю тему лучше, чем в одиночку."},
+  {p:"reflective", t:"После ошибки я обычно анализирую не только ответ, но и ход своего мышления."},
+
+  {p:"systems", t:"Я быстро замечаю, как изменение одной части системы повлияет на остальные."},
+  {p:"analytical", t:"Мне нравится раскладывать спорный вопрос на факты, допущения и выводы."},
+  {p:"practical", t:"Длинная теория без конкретного применения быстро утомляет меня."},
+  {p:"visual", t:"Я хорошо запоминаю расположение элементов, маршруты и внешний вид объектов."},
+  {p:"social", t:"Мне полезно, когда кто-то задаёт уточняющие вопросы к моему объяснению."},
+  {p:"creative", t:"Необычная аналогия часто помогает мне понять новую тему."},
+  {p:"reflective", t:"Мне нужно немного времени в тишине, чтобы окончательно уложить информацию."},
+  {p:"verbal", t:"Я лучше усваиваю материал, когда могу кратко пересказать его своими словами."},
+
+  {p:"visual", t:"При планировании я часто мысленно вижу будущий результат или последовательность действий."},
+  {p:"practical", t:"Я предпочитаю сначала сделать простую рабочую версию, а потом улучшать её."},
+  {p:"verbal", t:"Хорошо написанная инструкция для меня полезнее хаотичного видеоролика."},
+  {p:"creative", t:"Я часто соединяю идеи из разных областей и получаю новый вариант решения."},
+  {p:"analytical", t:"Я склонен проверять, нет ли противоречий в объяснении."},
+  {p:"reflective", t:"Я могу заметить, что перестал понимать материал, и изменить способ обучения."},
+  {p:"systems", t:"Мне интересно не только что произошло, но и какое место это занимает в общей картине."},
+  {p:"social", t:"Обратная связь заметно ускоряет моё обучение."},
+
+  {p:"creative", t:"Жёсткие инструкции иногда мешают мне увидеть более удачное решение."},
+  {p:"social", t:"Я лучше запоминаю материал, если обсуждал его или кому-то объяснял."},
+  {p:"reflective", t:"Я обычно могу назвать, какой именно этап задачи вызывает у меня затруднение."},
+  {p:"practical", t:"Для меня полезнее выполнить три упражнения, чем трижды перечитать объяснение."},
+  {p:"verbal", t:"Я люблю давать сложным вещам короткие и понятные определения."},
+  {p:"visual", t:"Таблицы, диаграммы и визуальные сравнения помогают мне быстрее увидеть различия."},
+  {p:"systems", t:"Я автоматически группирую разрозненные факты в категории и уровни."},
+  {p:"analytical", t:"При выборе решения я стараюсь отделять впечатления от проверяемых данных."}
+];
+
+const labels = [
+  {v:1, text:"Совсем не про меня"},
+  {v:2, text:"Скорее не про меня"},
+  {v:3, text:"Иногда / зависит"},
+  {v:4, text:"Часто про меня"},
+  {v:5, text:"Очень точно"}
+];
+
+let answers = Array(questions.length).fill(null);
+let current = 0;
+
+const el = id => document.getElementById(id);
+const startScreen = el("startScreen");
+const quizScreen = el("quizScreen");
+const resultsScreen = el("resultsScreen");
+
+function saveState(){
+  localStorage.setItem("thinkingProfileAnswers", JSON.stringify(answers));
+  localStorage.setItem("thinkingProfileCurrent", String(current));
+}
+function loadState(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("thinkingProfileAnswers") || "null");
+    const idx = Number(localStorage.getItem("thinkingProfileCurrent") || 0);
+    if(Array.isArray(saved) && saved.length === questions.length){
+      answers = saved;
+      current = Math.min(Math.max(idx,0),questions.length-1);
+      if(answers.some(v => v !== null)) el("continueBtn").classList.remove("hidden");
+    }
+  }catch(e){}
+}
+function showQuiz(){
+  startScreen.classList.add("hidden");
+  resultsScreen.classList.remove("active");
+  quizScreen.classList.add("active");
+  renderQuestion();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function renderQuestion(){
+  const q = questions[current];
+  el("questionText").textContent = q.t;
+  el("questionNumber").textContent = `УТВЕРЖДЕНИЕ ${current+1}`;
+  el("progressText").textContent = `Вопрос ${current+1} из ${questions.length}`;
+  const answered = answers.filter(v=>v!==null).length;
+  el("answeredText").textContent = `Отвечено: ${answered}`;
+  el("progressBar").style.width = `${(answered/questions.length)*100}%`;
+
+  const box = el("answers");
+  box.innerHTML = "";
+  labels.forEach(item=>{
+    const b = document.createElement("button");
+    b.className = "answer" + (answers[current] === item.v ? " selected" : "");
+    b.innerHTML = `<b>${item.v}</b><span>${item.text}</span>`;
+    b.onclick = ()=>{
+      answers[current] = item.v;
+      saveState();
+      renderQuestion();
+      if(current < questions.length-1){
+        setTimeout(()=>{ current++; saveState(); renderQuestion(); }, 180);
+      }
+    };
+    box.appendChild(b);
+  });
+  el("prevBtn").disabled = current===0;
+  el("nextBtn").textContent = current===questions.length-1 ? "Показать результат" : "Далее →";
+  el("nextBtn").disabled = answers[current] === null;
+}
+function calculate(){
+  const raw = {};
+  Object.keys(profiles).forEach(k=>raw[k]=0);
+  questions.forEach((q,i)=> raw[q.p] += answers[i] || 0);
+
+  const adjusted = {};
+  Object.keys(raw).forEach(k => {
+    // Each profile has 4 questions. Convert 4..20 into a 0..100 expression scale.
+    adjusted[k] = Math.max(0, ((raw[k]-4)/16)*100);
+  });
+
+  const total = Object.values(adjusted).reduce((a,b)=>a+b,0) || 1;
+  const shares = {};
+  Object.keys(adjusted).forEach(k=> shares[k] = adjusted[k] / total * 100);
+  return {raw, adjusted, shares};
+}
+function showResults(){
+  if(answers.some(v=>v===null)) return;
+  const result = calculate();
+  quizScreen.classList.remove("active");
+  startScreen.classList.add("hidden");
+  resultsScreen.classList.add("active");
+  renderResults(result);
+  localStorage.setItem("thinkingProfileCompleted","1");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function renderResults(result){
+  const sorted = Object.keys(profiles).sort((a,b)=>result.shares[b]-result.shares[a]);
+  const top = sorted.slice(0,3);
+  el("headlineText").textContent =
+    `Наиболее выражены: ${profiles[top[0]].name.toLowerCase()}, ${profiles[top[1]].name.toLowerCase()} и ${profiles[top[2]].name.toLowerCase()} мышление.`;
+
+  const list = el("resultList");
+  list.innerHTML = "";
+  sorted.forEach(k=>{
+    const item = document.createElement("div");
+    item.className = "result-item";
+    const pct = result.shares[k].toFixed(1);
+    item.innerHTML = `
+      <div class="result-top"><strong>${profiles[k].name}</strong><b>${pct}%</b></div>
+      <div class="bar"><div style="width:${Math.min(result.adjusted[k],100)}%"></div></div>
+      <p>${profiles[k].desc}</p>`;
+    list.appendChild(item);
+  });
+
+  const top1 = profiles[top[0]], top2 = profiles[top[1]], top3 = profiles[top[2]];
+  el("recommendationText").textContent =
+    `Ваш естественный вход в новую тему — ${top1.learn}. Затем добавляйте второй канал: ${top2.learn}. Для закрепления используйте третий профиль: ${top3.learn}. Не ограничивайтесь только сильным способом: проверяйте понимание самостоятельным воспроизведением и практической задачей.`;
+  el("formulaText").textContent =
+    `Оптимальная формула: ${top1.short} → ${top2.short} → ${top3.short} → проверка без подсказок → применение.`;
+
+  drawRadar(result.shares);
+  window.__resultText = buildResultText(sorted, result);
+}
+function buildResultText(sorted, result){
+  const lines = ["МОЙ ПРОФИЛЬ МЫШЛЕНИЯ", ""];
+  sorted.forEach(k=>lines.push(`${profiles[k].name}: ${result.shares[k].toFixed(1)}%`));
+  const top = sorted.slice(0,3);
+  lines.push("", `Формула обучения: ${profiles[top[0]].short} → ${profiles[top[1]].short} → ${profiles[top[2]].short} → воспроизведение → практика.`);
+  lines.push("", "Результат является самооценкой, а не медицинской диагностикой.");
+  return lines.join("\n");
+}
+function drawRadar(shares){
+  const canvas = el("radar");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const cssSize = Math.min(canvas.clientWidth || 520, 520);
+  canvas.width = cssSize*dpr;
+  canvas.height = cssSize*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  const w=cssSize,h=cssSize,cx=w/2,cy=h/2;
+  const radius = w*0.34;
+  const keys = Object.keys(profiles);
+  const n = keys.length;
+  ctx.clearRect(0,0,w,h);
+
+  // grid
+  for(let ring=1; ring<=4; ring++){
+    ctx.beginPath();
+    keys.forEach((k,i)=>{
+      const a = -Math.PI/2 + i*2*Math.PI/n;
+      const r = radius*ring/4;
+      const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = "rgba(180,210,235,.14)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  keys.forEach((k,i)=>{
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a)*radius,cy+Math.sin(a)*radius);
+    ctx.strokeStyle="rgba(180,210,235,.12)";ctx.stroke();
+  });
+
+  // polygon: scale share relative to plausible max 25%, so differences are visible
+  ctx.beginPath();
+  keys.forEach((k,i)=>{
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const normalized = Math.min(shares[k]/25,1);
+    const r = radius*(0.18 + normalized*0.82);
+    const x = cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,"rgba(112,225,197,.42)");
+  grad.addColorStop(1,"rgba(127,168,255,.25)");
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle="#70e1c5";ctx.lineWidth=3;ctx.stroke();
+
+  keys.forEach((k,i)=>{
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const normalized = Math.min(shares[k]/25,1);
+    const r = radius*(0.18 + normalized*0.82);
+    const x = cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+    ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);
+    ctx.fillStyle="#eef6ff";ctx.fill();
+
+    const lr = radius*1.24;
+    const lx=cx+Math.cos(a)*lr, ly=cy+Math.sin(a)*lr;
+    ctx.fillStyle="#d8e7f4";
+    ctx.font="600 12px system-ui";
+    ctx.textAlign = Math.cos(a) > .2 ? "left" : Math.cos(a) < -.2 ? "right" : "center";
+    ctx.textBaseline = Math.sin(a) > .2 ? "top" : Math.sin(a) < -.2 ? "bottom" : "middle";
+    ctx.fillText(`${profiles[k].short} ${shares[k].toFixed(0)}%`,lx,ly);
+  });
+}
+function resetAll(){
+  answers = Array(questions.length).fill(null);
+  current = 0;
+  localStorage.removeItem("thinkingProfileAnswers");
+  localStorage.removeItem("thinkingProfileCurrent");
+  localStorage.removeItem("thinkingProfileCompleted");
+  quizScreen.classList.remove("active");
+  resultsScreen.classList.remove("active");
+  startScreen.classList.remove("hidden");
+  el("continueBtn").classList.add("hidden");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+el("startBtn").onclick = ()=>{ current=0; showQuiz(); };
+el("continueBtn").onclick = showQuiz;
+el("prevBtn").onclick = ()=>{ if(current>0){current--;saveState();renderQuestion();} };
+el("nextBtn").onclick = ()=>{
+  if(current<questions.length-1){current++;saveState();renderQuestion();}
+  else showResults();
+};
+el("restartBtn").onclick = resetAll;
+el("resetTop").onclick = ()=>{ if(confirm("Удалить ответы и начать заново?")) resetAll(); };
+el("copyBtn").onclick = async ()=>{
+  try{
+    await navigator.clipboard.writeText(window.__resultText || "");
+    el("copyBtn").textContent="Скопировано ✓";
+    setTimeout(()=>el("copyBtn").textContent="Скопировать результат",1600);
+  }catch(e){
+    alert(window.__resultText || "");
+  }
+};
+window.addEventListener("resize",()=>{
+  if(resultsScreen.classList.contains("active")) renderResults(calculate());
+});
+
+loadState();
+if(localStorage.getItem("thinkingProfileCompleted")==="1" && answers.every(v=>v!==null)){
+  startScreen.classList.add("hidden");
+  resultsScreen.classList.add("active");
+  renderResults(calculate());
+}
+</script>
+</body>
+</html>
