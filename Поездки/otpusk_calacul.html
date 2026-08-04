@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eee8dc" />
+  <title>Калькулятор отпуска</title>
+  <style>
+    :root{
+      --bg:#eee9df;
+      --panel:#fbf8f1;
+      --panel-2:#f5f0e6;
+      --text:#2f342e;
+      --muted:#7a7f76;
+      --line:rgba(55,63,54,.13);
+      --accent:#5d7458;
+      --accent-dark:#40523d;
+      --warm:#b66f4d;
+      --gold:#c79b4f;
+      --danger:#a8524b;
+      --shadow:0 18px 50px rgba(67,62,52,.12);
+      --r-xl:28px;
+      --r-lg:20px;
+      --r-md:14px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 0 0,rgba(199,155,79,.18),transparent 26rem),
+        radial-gradient(circle at 100% 8%,rgba(90,122,101,.17),transparent 30rem),
+        linear-gradient(145deg,#f4efe6,#e8eee7 55%,#f4e7de);
+      background-attachment:fixed;
+    }
+
+    button,input,select,textarea{font:inherit}
+    button{color:inherit}
+
+    .app{
+      width:min(1640px,calc(100% - 22px));
+      margin:0 auto;
+      padding:18px 0 48px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:32px clamp(22px,4vw,48px);
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:32px;
+      background:rgba(253,249,241,.82);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(15px);
+      margin-bottom:14px;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:280px;height:280px;
+      right:-80px;top:-150px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(197,148,79,.33),transparent 68%);
+      pointer-events:none;
+    }
+
+    .eyebrow{
+      display:flex;align-items:center;gap:9px;
+      color:var(--accent-dark);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:.75rem;
+      font-weight:850;
+    }
+    .eyebrow::before{content:"";width:28px;height:1px;background:currentColor;opacity:.5}
+    h1{
+      margin:9px 0 0;
+      font:500 clamp(2.2rem,5vw,4.5rem)/.98 Georgia,"Times New Roman",serif;
+      letter-spacing:-.045em;
+    }
+    .hero p{
+      max-width:900px;
+      margin:15px 0 0;
+      color:#666b63;
+      line-height:1.55;
+    }
+
+    .topbar{
+      position:sticky;top:8px;z-index:40;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      padding:11px;
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:19px;
+      background:rgba(248,245,238,.86);
+      backdrop-filter:blur(16px);
+      box-shadow:0 10px 28px rgba(58,56,48,.1);
+      margin-bottom:14px;
+    }
+    .topbar-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{
+      appearance:none;border:0;border-radius:12px;
+      min-height:41px;padding:10px 14px;
+      font-weight:780;cursor:pointer;
+      transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn-primary{
+      color:white;background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+      box-shadow:0 8px 20px rgba(64,82,61,.2)
+    }
+    .btn-warm{
+      color:white;background:linear-gradient(135deg,#c0805f,#9f593d);
+      box-shadow:0 8px 20px rgba(159,89,61,.18)
+    }
+    .btn-ghost{border:1px solid var(--line);background:rgba(255,255,255,.64)}
+    .btn-danger{color:var(--danger);background:rgba(168,82,75,.09)}
+    .save-state{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.84rem}
+    .save-dot{width:8px;height:8px;border-radius:50%;background:#78a06e;box-shadow:0 0 0 5px rgba(120,160,110,.14)}
+
+    .controls{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .control-card{
+      padding:16px;
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:20px;
+      background:rgba(253,250,244,.72);
+      backdrop-filter:blur(12px);
+    }
+    .control-card h2{
+      margin:0 0 11px;
+      font-size:.88rem;
+      text-transform:uppercase;
+      letter-spacing:.09em;
+    }
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    label{display:grid;gap:6px;color:#6f746b;font-size:.8rem;font-weight:760}
+    input,select,textarea{
+      width:100%;
+      border:1px solid rgba(67,75,64,.15);
+      border-radius:12px;
+      background:rgba(255,255,255,.75);
+      padding:11px 12px;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus,select:focus,textarea:focus{border-color:rgba(79,106,74,.58);box-shadow:0 0 0 4px rgba(79,106,74,.09)}
+    input[type="date"]{min-width:0}
+    textarea{min-height:78px;resize:vertical}
+
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .metric{
+      padding:12px;border-radius:14px;
+      background:rgba(255,255,255,.62);
+      border:1px solid var(--line);
+    }
+    .metric-label{font-size:.72rem;color:var(--muted)}
+    .metric-value{margin-top:3px;font:500 1.55rem Georgia,serif}
+    .metric small{display:block;margin-top:2px;color:var(--muted);font-size:.67rem}
+
+    .workspace{
+      display:grid;
+      grid-template-columns:340px minmax(0,1fr);
+      gap:14px;
+      align-items:start;
+    }
+
+    .catalog{
+      position:sticky;top:78px;
+      max-height:calc(100vh - 92px);
+      overflow:auto;
+      padding:14px;
+      border-radius:24px;
+      background:rgba(250,247,240,.82);
+      border:1px solid rgba(255,255,255,.75);
+      box-shadow:0 12px 34px rgba(62,58,50,.09);
+      backdrop-filter:blur(14px);
+    }
+    .catalog-head{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:12px;
+    }
+    .catalog-head h2{margin:0;font-size:1rem}
+    .catalog-note{color:var(--muted);font-size:.76rem;line-height:1.4;margin:0 0 12px}
+    .group{margin-bottom:12px}
+    .group-head{
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      margin-bottom:7px;
+      padding:0 2px;
+    }
+    .group-title{display:flex;align-items:center;gap:8px;font-weight:820;font-size:.88rem}
+    .group-dot{width:9px;height:9px;border-radius:50%;background:var(--g)}
+    .group-count{color:var(--muted);font-size:.72rem}
+    .event-list{display:grid;gap:7px}
+    .catalog-event{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:9px;align-items:center;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:rgba(255,255,255,.72);
+      cursor:grab;
+      transition:opacity .15s ease,filter .15s ease,transform .15s ease,background .15s ease;
+      user-select:none;
+    }
+    .catalog-event:hover{transform:translateY(-1px);background:white}
+    .catalog-event.used{
+      opacity:.46;
+      filter:grayscale(1);
+      background:rgba(224,224,219,.64);
+    }
+    .catalog-event.dragging{opacity:.25}
+    .catalog-icon{font-size:1.1rem}
+    .catalog-main{min-width:0}
+    .catalog-name{font-size:.84rem;font-weight:760;line-height:1.25;overflow-wrap:anywhere}
+    .catalog-meta{margin-top:3px;color:var(--muted);font-size:.68rem}
+    .mini-btn{
+      display:grid;place-items:center;
+      width:29px;height:29px;border:0;border-radius:9px;
+      background:transparent;cursor:pointer;color:#80847b;
+    }
+    .mini-btn:hover{background:rgba(80,90,73,.08);color:var(--text)}
+    .group-empty{
+      padding:12px;border:1px dashed var(--line);border-radius:12px;
+      color:#999c94;text-align:center;font-size:.76rem;
+    }
+
+    .planner{
+      display:grid;gap:12px;
+    }
+
+    .planner-message{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.56);
+      border:1px solid rgba(255,255,255,.72);
+      color:#62675f;
+      font-size:.83rem;
+    }
+
+    .days{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+    .day-card{
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.78);
+      border-radius:22px;
+      background:rgba(252,249,243,.82);
+      box-shadow:0 9px 26px rgba(67,62,53,.07);
+      transition:box-shadow .15s ease,border-color .15s ease,transform .15s ease;
+    }
+    .day-card:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(67,62,53,.09)}
+    .day-card.high-load{border-color:rgba(182,111,77,.24)}
+    .day-card.anniversary{
+      background:
+        radial-gradient(circle at 100% 0,rgba(196,109,91,.16),transparent 170px),
+        rgba(252,246,239,.9);
+    }
+    .day-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:15px 16px 12px;
+      border-bottom:1px solid rgba(58,67,57,.08);
+    }
+    .day-date{display:flex;align-items:center;gap:11px}
+    .day-num{
+      display:grid;place-items:center;
+      width:45px;height:45px;border-radius:15px;
+      color:#fff;background:linear-gradient(145deg,#6d8468,#4c6148);
+      font:500 1.3rem Georgia,serif;
+      box-shadow:0 7px 17px rgba(68,87,65,.16)
+    }
+    .weekend .day-num{background:linear-gradient(145deg,#c1815e,#9f593d)}
+    .day-week{font-weight:820;line-height:1.15}
+    .day-full{margin-top:3px;color:var(--muted);font-size:.75rem}
+    .day-type{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 9px;border-radius:999px;
+      font-size:.68rem;font-weight:820;
+      background:rgba(93,116,88,.1);color:var(--accent-dark);
+      white-space:nowrap;
+    }
+    .day-actions{display:flex;align-items:center;gap:6px}
+    .remove-day{
+      width:32px;height:32px;border:1px solid var(--line);border-radius:10px;
+      background:rgba(255,255,255,.55);cursor:pointer;color:#85887f
+    }
+    .remove-day:hover{color:var(--danger);background:rgba(168,82,75,.07)}
+
+    .slots{display:grid;gap:8px;padding:12px}
+    .slot{
+      min-height:86px;
+      padding:10px;
+      border:1px dashed rgba(75,84,72,.2);
+      border-radius:15px;
+      background:rgba(255,255,255,.4);
+      transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+    }
+    .slot.drag-over{
+      border-color:rgba(74,102,69,.62);
+      background:rgba(93,116,88,.08);
+      box-shadow:0 0 0 4px rgba(93,116,88,.08);
+    }
+    .slot-label{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:7px;
+      color:#858980;font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;font-weight:820
+    }
+    .slot-hint{font-size:.66rem;text-transform:none;letter-spacing:0;font-weight:600}
+    .slot-empty{
+      display:flex;align-items:center;justify-content:center;
+      min-height:48px;color:#a0a39c;text-align:center;font-size:.76rem;
+    }
+    .planned-event{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:9px;align-items:start;
+      padding:10px;
+      border:1px solid rgba(65,74,62,.09);
+      border-left:4px solid var(--event-color);
+      border-radius:12px;
+      background:rgba(255,255,255,.8);
+      cursor:grab;
+    }
+    .planned-event.dragging{opacity:.3}
+    .planned-title{font-size:.84rem;font-weight:810;line-height:1.25}
+    .planned-note{margin-top:3px;color:var(--muted);font-size:.7rem;line-height:1.3}
+    .planned-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .tag{
+      padding:3px 6px;border-radius:999px;
+      background:rgba(89,104,84,.08);
+      color:#677062;font-size:.62rem;font-weight:760;
+    }
+    .slot-warning{
+      margin-top:7px;padding:7px 8px;border-radius:9px;
+      background:rgba(182,111,77,.09);color:#92563d;font-size:.68rem;line-height:1.3
+    }
+
+    .empty-calendar{
+      padding:34px;border:1px dashed var(--line);border-radius:20px;
+      text-align:center;color:var(--muted);background:rgba(255,255,255,.5)
+    }
+
+    dialog{
+      width:min(580px,calc(100% - 22px));
+      border:0;border-radius:25px;padding:0;
+      background:#faf7f0;color:var(--text);
+      box-shadow:0 26px 85px rgba(43,42,37,.28)
+    }
+    dialog::backdrop{background:rgba(38,41,36,.52);backdrop-filter:blur(7px)}
+    .modal-head{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:21px 21px 10px;
+    }
+    .modal-head h2{margin:0;font:500 1.55rem Georgia,serif}
+    .close-btn{
+      width:35px;height:35px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.6);cursor:pointer
+    }
+    .modal-body{display:grid;gap:14px;padding:10px 21px 20px}
+    .modal-actions{
+      display:flex;align-items:center;justify-content:space-between;gap:9px;
+      padding:0 21px 21px
+    }
+    .modal-actions-right{display:flex;gap:8px;margin-left:auto}
+    .check-row{display:flex;align-items:center;gap:9px;color:#656a61;font-size:.82rem}
+    .check-row input{width:auto}
+    .help{
+      padding:12px 13px;border-radius:13px;background:rgba(93,116,88,.08);
+      color:#64705f;font-size:.76rem;line-height:1.45
+    }
+
+    .toast{
+      position:fixed;right:18px;bottom:18px;z-index:100;
+      max-width:min(390px,calc(100% - 36px));
+      padding:12px 15px;border-radius:13px;
+      color:white;background:rgba(48,58,46,.95);
+      box-shadow:0 12px 35px rgba(25,30,24,.25);
+      opacity:0;transform:translateY(10px);pointer-events:none;
+      transition:opacity .18s ease,transform .18s ease;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    @media(max-width:1180px){
+      .controls{grid-template-columns:1fr 1fr}
+      .control-card.metrics-card{grid-column:1/-1}
+      .workspace{grid-template-columns:300px minmax(0,1fr)}
+      .days{grid-template-columns:1fr}
+    }
+    @media(max-width:820px){
+      .workspace{grid-template-columns:1fr}
+      .catalog{position:relative;top:auto;max-height:none}
+      .controls{grid-template-columns:1fr}
+      .control-card.metrics-card{grid-column:auto}
+      .days{grid-template-columns:1fr}
+    }
+    @media(max-width:560px){
+      .app{width:min(100% - 12px,1640px);padding-top:6px}
+      .hero{border-radius:23px;padding:23px 19px}
+      h1{font-size:2.55rem}
+      .topbar{top:4px;align-items:stretch;flex-direction:column}
+      .topbar-group{justify-content:space-between}
+      .metrics{grid-template-columns:1fr 1fr}
+      .field-row{grid-template-columns:1fr}
+      .day-head{align-items:flex-start}
+      .day-type{white-space:normal;text-align:center}
+      .modal-actions{align-items:stretch;flex-direction:column-reverse}
+      .modal-actions-right{width:100%;margin-left:0}
+      .modal-actions-right .btn{flex:1}
+    }
+
+    @media print{
+      body{background:#fff}
+      .app{width:100%;padding:0}
+      .hero,.day-card,.control-card{box-shadow:none;backdrop-filter:none}
+      .topbar,.controls,.catalog,.planner-message,.remove-day,.mini-btn,.slot-hint{display:none!important}
+      .workspace{display:block}
+      .days{grid-template-columns:repeat(2,1fr);gap:8px}
+      .day-card{break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">умный конструктор отпуска</div>
+      <h1>Последовательность событий</h1>
+      <p>
+        Собирайте отпуск как цепочку нагрузки: основное событие задаёт характер дня,
+        дополнительный слот оставляет место для совместимого лёгкого занятия.
+        Использованные события в каталоге автоматически становятся серыми.
+      </p>
+    </section>
+
+    <section class="topbar">
+      <div class="topbar-group">
+        <button class="btn btn-primary" id="autoPlanBtn">Собрать последовательность</button>
+        <button class="btn btn-ghost" id="clearPlanBtn">Очистить цепочку</button>
+        <button class="btn btn-ghost" id="printBtn">Печать / PDF</button>
+      </div>
+      <div class="topbar-group">
+        <span class="save-state"><span class="save-dot"></span><span id="saveState">Автосохранение включено</span></span>
+        <button class="btn btn-ghost" id="resetBtn">Вернуть исходное</button>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="control-card">
+        <h2>Диапазон отпуска</h2>
+        <div class="field-row">
+          <label>Начало
+            <input type="date" id="startDate" value="2026-08-05">
+          </label>
+          <label>Конец
+            <input type="date" id="endDate" value="2026-08-18">
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="applyRangeBtn">Применить диапазон</button>
+          <button class="btn btn-ghost" id="addDayBtn">＋ Добавить день</button>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <h2>Логика сборки</h2>
+        <label>Жёсткость чередования
+          <select id="balanceMode">
+            <option value="soft">Мягкая — больше свободы</option>
+            <option value="balanced" selected>Сбалансированная</option>
+            <option value="strict">Строгая — без тяжёлых дней подряд</option>
+          </select>
+        </label>
+        <div class="help" style="margin-top:10px">
+          Автосборка сначала ставит события с фиксированной датой, затем большие выезды,
+          активные, социальные и спокойные дни. Короткие совместимые занятия попадают во второй слот.
+        </div>
+      </div>
+
+      <div class="control-card metrics-card">
+        <h2>Баланс цепочки</h2>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Дней</div><div class="metric-value" id="metricDays">14</div><small>в диапазоне</small></div>
+          <div class="metric"><div class="metric-label">Заполнено</div><div class="metric-value" id="metricUsed">0</div><small>событий</small></div>
+          <div class="metric"><div class="metric-label">Свободно</div><div class="metric-value" id="metricFree">28</div><small>слотов</small></div>
+          <div class="metric"><div class="metric-label">Баланс</div><div class="metric-value" id="metricScore">—</div><small>из 100</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="catalog">
+        <div class="catalog-head">
+          <h2>Все события</h2>
+          <button class="btn btn-warm" id="addEventBtn">＋ Новое</button>
+        </div>
+        <p class="catalog-note">
+          Перетащите событие в основной или дополнительный слот.
+          Серые карточки уже используются в цепочке.
+        </p>
+        <div id="catalogGroups"></div>
+      </aside>
+
+      <section class="planner">
+        <div class="planner-message">
+          <span id="plannerMessage">Основной слот задаёт тип дня. Дополнительный — для лёгкого совместимого события.</span>
+          <span id="compatibilityMessage"></span>
+        </div>
+        <div class="days" id="daysContainer"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="eventDialog">
+    <div class="modal-head">
+      <h2 id="eventDialogTitle">Новое событие</h2>
+      <button class="close-btn" id="closeDialogBtn" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Название
+        <input id="eventName" maxlength="90" placeholder="Например: прогулка на катере">
+      </label>
+      <div class="field-row">
+        <label>Группа
+          <select id="eventGroup"></select>
+        </label>
+        <label>Длительность
+          <select id="eventDuration">
+            <option value="short">Короткое, 1–2 часа</option>
+            <option value="half">Полдня</option>
+            <option value="full">Почти весь день</option>
+          </select>
+        </label>
+      </div>
+      <div class="field-row">
+        <label>Нагрузка
+          <select id="eventIntensity">
+            <option value="1">1 — почти отдых</option>
+            <option value="2">2 — лёгкая</option>
+            <option value="3">3 — средняя</option>
+            <option value="4">4 — высокая</option>
+            <option value="5">5 — очень высокая</option>
+          </select>
+        </label>
+        <label>Фиксированная дата
+          <input type="date" id="eventFixedDate">
+        </label>
+      </div>
+      <label>Комментарий
+        <textarea id="eventNote" maxlength="180" placeholder="Что важно учесть, с чем совместимо, что взять…"></textarea>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="eventOutdoor">
+        Зависит от погоды
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="deleteEventBtn" hidden>Удалить</button>
+      <div class="modal-actions-right">
+        <button class="btn btn-ghost" id="cancelDialogBtn">Отмена</button>
+        <button class="btn btn-primary" id="saveEventBtn">Сохранить</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "vacation-sequence-calculator-v1";
+    const DATA_VERSION = 2;
+
+    const groups = {
+      big:     { label:"Большие выезды", color:"#7b916c", icon:"🧭", defaultIntensity:5 },
+      active:  { label:"Активный отдых", color:"#5d8da0", icon:"🚴", defaultIntensity:4 },
+      calm:    { label:"Спокойные впечатления", color:"#c49a4e", icon:"🎭", defaultIntensity:2 },
+      social:  { label:"Близкие и общение", color:"#9a7188", icon:"🤝", defaultIntensity:2 },
+      rest:    { label:"Дом и восстановление", color:"#b56f58", icon:"☕", defaultIntensity:1 },
+      chores:  { label:"Дела", color:"#91816e", icon:"🧹", defaultIntensity:3 }
+    };
+
+    const defaultEvents = [
+      {id:"ev1",name:"Аквапарк",group:"big",duration:"full",intensity:4,outdoor:false,note:"Большой семейный день; вечером лучше ничего не ставить.",fixedDate:""},
+      {id:"ev2",name:"Сапборды",group:"active",duration:"half",intensity:3,outdoor:true,note:"Лучше утром; совместимо со спокойным вечером.",fixedDate:""},
+      {id:"ev3",name:"Разобрать сарай",group:"chores",duration:"half",intensity:3,outdoor:true,note:"Ограничить 2–3 часами, не отдавать этому весь день.",fixedDate:""},
+      {id:"ev4",name:"Покататься на велосипедах",group:"active",duration:"half",intensity:3,outdoor:true,note:"После — только лёгкое занятие.",fixedDate:""},
+      {id:"ev5",name:"Глэмпинг",group:"big",duration:"full",intensity:4,outdoor:true,note:"Лучше считать как отдельный большой выезд.",fixedDate:""},
+      {id:"ev6",name:"Съездить с палатками",group:"big",duration:"full",intensity:5,outdoor:true,note:"Нужен спокойный день после возвращения.",fixedDate:""},
+      {id:"ev7",name:"Покататься на вейкборде",group:"active",duration:"half",intensity:5,outdoor:true,note:"С инструктором; после не планировать нагрузку на ноги.",fixedDate:""},
+      {id:"ev8",name:"Сходить на концерт",group:"calm",duration:"half",intensity:2,outdoor:false,note:"Вечернее событие, можно совместить с лёгким утром.",fixedDate:""},
+      {id:"ev9",name:"Вместе поиграть в компьютер",group:"rest",duration:"short",intensity:1,outdoor:false,note:"Хорошее дополнение после активного дня.",fixedDate:""},
+      {id:"ev10",name:"Покататься на лодке",group:"active",duration:"half",intensity:2,outdoor:true,note:"Можно объединить с сапбордами или пикником.",fixedDate:""},
+      {id:"ev11",name:"Поиграть в бадминтон",group:"active",duration:"short",intensity:2,outdoor:true,note:"Короткое дополнительное занятие.",fixedDate:""},
+      {id:"ev12",name:"Сходить за грибами",group:"active",duration:"half",intensity:3,outdoor:true,note:"Лучше утром и не после очень тяжёлого дня.",fixedDate:""},
+      {id:"ev13",name:"Вынести мусор",group:"chores",duration:"short",intensity:1,outdoor:false,note:"Хорошо объединяется с разбором сарая.",fixedDate:""},
+      {id:"ev14",name:"Сходить в СПА",group:"rest",duration:"half",intensity:1,outdoor:false,note:"Восстановление после большого выезда.",fixedDate:""},
+      {id:"ev15",name:"Покататься на роликах",group:"active",duration:"half",intensity:3,outdoor:true,note:"Не ставить рядом с тяжёлой нагрузкой на ноги.",fixedDate:""},
+      {id:"ev16",name:"Сходить в кино",group:"calm",duration:"short",intensity:1,outdoor:false,note:"Хороший запасной вариант на плохую погоду.",fixedDate:""},
+      {id:"ev17",name:"Съездить на Кудыкину гору",group:"big",duration:"full",intensity:5,outdoor:true,note:"Большая поездка; желательно с ночёвкой.",fixedDate:""},
+      {id:"ev18",name:"Сгонять в другой город",group:"big",duration:"full",intensity:4,outdoor:true,note:"Можно объединить с Кудыкиной горой, если это Елец.",fixedDate:""},
+      {id:"ev19",name:"Сходить в музей",group:"calm",duration:"half",intensity:2,outdoor:false,note:"Подходит после активного дня или в дождь.",fixedDate:""},
+      {id:"ev20",name:"Парк развлечений «Остров мечты»",group:"big",duration:"full",intensity:4,outdoor:false,note:"Почти весь день; не добавлять вторую серьёзную активность.",fixedDate:""},
+      {id:"ev21",name:"Годовщина — ресторан",group:"calm",duration:"half",intensity:2,outdoor:false,note:"Главное событие дня, без хозяйственных дел.",fixedDate:"2026-08-13"},
+      {id:"ev22",name:"Встреча с родителями",group:"social",duration:"half",intensity:2,outdoor:false,note:"Умеренная социальная нагрузка. Совместимо с прогулкой, музеем, бадминтоном или спокойным вечером дома.",fixedDate:""}
+    ];
+
+    let state = loadState();
+    let editingEventId = null;
+    let draggedEventId = null;
+    let draggedFromSlot = null;
+
+    const catalogGroups = document.getElementById("catalogGroups");
+    const daysContainer = document.getElementById("daysContainer");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+    const eventDialog = document.getElementById("eventDialog");
+    const eventDialogTitle = document.getElementById("eventDialogTitle");
+    const eventName = document.getElementById("eventName");
+    const eventGroup = document.getElementById("eventGroup");
+    const eventDuration = document.getElementById("eventDuration");
+    const eventIntensity = document.getElementById("eventIntensity");
+    const eventFixedDate = document.getElementById("eventFixedDate");
+    const eventNote = document.getElementById("eventNote");
+    const eventOutdoor = document.getElementById("eventOutdoor");
+    const deleteEventBtn = document.getElementById("deleteEventBtn");
+    const saveStateEl = document.getElementById("saveState");
+    const toast = document.getElementById("toast");
+    const balanceMode = document.getElementById("balanceMode");
+
+    function initialState(){
+      const start="2026-08-05", end="2026-08-18";
+      return {
+        dataVersion:DATA_VERSION,
+        startDate:start,
+        endDate:end,
+        days:makeDateRange(start,end),
+        events:structuredClone(defaultEvents),
+        plan:{},
+        balanceMode:"balanced"
+      };
+    }
+
+    function loadState(){
+      try{
+        const raw=localStorage.getItem(STORAGE_KEY);
+        const parsed=raw?JSON.parse(raw):null;
+        if(parsed && Array.isArray(parsed.events) && Array.isArray(parsed.days) && parsed.plan){
+          return migrateState(parsed);
+        }
+      }catch(e){}
+      return initialState();
+    }
+
+    function migrateState(saved){
+      const migrated={...saved};
+      migrated.dataVersion=DATA_VERSION;
+      migrated.balanceMode=migrated.balanceMode || "balanced";
+      migrated.plan=migrated.plan || {};
+      migrated.events=Array.isArray(migrated.events)?migrated.events:[];
+
+      // Добавляем новые штатные события, не трогая пользовательские изменения.
+      defaultEvents.forEach(defaultEvent=>{
+        const exists=migrated.events.some(event=>event.id===defaultEvent.id || event.name.trim().toLowerCase()===defaultEvent.name.trim().toLowerCase());
+        if(!exists) migrated.events.push(structuredClone(defaultEvent));
+      });
+
+      // В старых версиях этой группы не было. Неизвестные группы безопасно переводим в спокойные впечатления.
+      migrated.events.forEach(event=>{
+        if(!groups[event.group]) event.group="calm";
+      });
+      return migrated;
+    }
+
+    function saveState(message="Сохранено"){
+      state.balanceMode=balanceMode.value;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+      saveStateEl.textContent=message;
+      clearTimeout(saveState.timer);
+      saveState.timer=setTimeout(()=>saveStateEl.textContent="Автосохранение включено",1400);
+    }
+
+    function makeDateRange(start,end){
+      const result=[];
+      const s=parseLocalDate(start), e=parseLocalDate(end);
+      if(!s || !e || e<s) return result;
+      const cursor=new Date(s);
+      while(cursor<=e){
+        result.push(toISO(cursor));
+        cursor.setDate(cursor.getDate()+1);
+      }
+      return result;
+    }
+
+    function parseLocalDate(iso){
+      if(!iso) return null;
+      const [y,m,d]=iso.split("-").map(Number);
+      return new Date(y,m-1,d);
+    }
+
+    function toISO(date){
+      const y=date.getFullYear();
+      const m=String(date.getMonth()+1).padStart(2,"0");
+      const d=String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDate(iso){
+      const d=parseLocalDate(iso);
+      return new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"long"}).format(d);
+    }
+
+    function formatWeekday(iso){
+      const d=parseLocalDate(iso);
+      const value=new Intl.DateTimeFormat("ru-RU",{weekday:"long"}).format(d);
+      return value.charAt(0).toUpperCase()+value.slice(1);
+    }
+
+    function usedIds(){
+      const set=new Set();
+      Object.values(state.plan).forEach(day=>{
+        if(day?.main) set.add(day.main);
+        if(day?.extra) set.add(day.extra);
+      });
+      return set;
+    }
+
+    function render(){
+      startDateInput.value=state.startDate;
+      endDateInput.value=state.endDate;
+      balanceMode.value=state.balanceMode || "balanced";
+      renderCatalog();
+      renderDays();
+      updateMetrics();
+    }
+
+    function renderCatalog(){
+      const used=usedIds();
+      catalogGroups.innerHTML="";
+      Object.entries(groups).forEach(([key,group])=>{
+        const list=state.events.filter(ev=>ev.group===key);
+        const wrapper=document.createElement("section");
+        wrapper.className="group";
+        wrapper.style.setProperty("--g",group.color);
+        wrapper.innerHTML=`
+          <div class="group-head">
+            <div class="group-title"><span class="group-dot"></span>${group.icon} ${group.label}</div>
+            <span class="group-count">${list.length}</span>
+          </div>
+          <div class="event-list"></div>
+        `;
+        const eventList=wrapper.querySelector(".event-list");
+        if(!list.length){
+          eventList.innerHTML=`<div class="group-empty">В этой группе пока пусто</div>`;
+        }else{
+          list.forEach(ev=>eventList.appendChild(makeCatalogEvent(ev,used.has(ev.id))));
+        }
+        catalogGroups.appendChild(wrapper);
+      });
+    }
+
+    function makeCatalogEvent(ev,isUsed){
+      const group=groups[ev.group];
+      const el=document.createElement("div");
+      el.className="catalog-event"+(isUsed?" used":"");
+      el.draggable=true;
+      el.dataset.eventId=ev.id;
+      el.innerHTML=`
+        <div class="catalog-icon">${group.icon}</div>
+        <div class="catalog-main">
+          <div class="catalog-name">${escapeHtml(ev.name)}</div>
+          <div class="catalog-meta">${durationLabel(ev.duration)} · нагрузка ${ev.intensity}${ev.fixedDate?` · ${formatDate(ev.fixedDate)}`:""}</div>
+        </div>
+        <button class="mini-btn" title="Редактировать">⋮</button>
+      `;
+      el.addEventListener("dragstart",e=>{
+        draggedEventId=ev.id;
+        draggedFromSlot=null;
+        e.dataTransfer.effectAllowed="move";
+        e.dataTransfer.setData("text/plain",ev.id);
+        el.classList.add("dragging");
+      });
+      el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+      el.querySelector(".mini-btn").addEventListener("click",e=>{
+        e.stopPropagation();
+        openEditEvent(ev.id);
+      });
+      el.addEventListener("dblclick",()=>openEditEvent(ev.id));
+      return el;
+    }
+
+    function renderDays(){
+      daysContainer.innerHTML="";
+      if(!state.days.length){
+        daysContainer.innerHTML=`<div class="empty-calendar">Нет дней в диапазоне. Выберите корректные даты или добавьте день.</div>`;
+        return;
+      }
+
+      state.days.forEach((date,index)=>{
+        const plan=state.plan[date] || {main:null,extra:null};
+        const mainEv=getEvent(plan.main);
+        const extraEv=getEvent(plan.extra);
+        const load=dayLoad(plan);
+        const d=parseLocalDate(date);
+        const weekend=[0,6].includes(d.getDay());
+        const day=document.createElement("article");
+        day.className=`day-card${weekend?" weekend":""}${load>=7?" high-load":""}${date==="2026-08-13"?" anniversary":""}`;
+        day.dataset.date=date;
+        day.innerHTML=`
+          <header class="day-head">
+            <div class="day-date">
+              <div class="day-num">${d.getDate()}</div>
+              <div>
+                <div class="day-week">${formatWeekday(date)}</div>
+                <div class="day-full">${formatDate(date)} ${d.getFullYear()}</div>
+              </div>
+            </div>
+            <div class="day-actions">
+              <span class="day-type">${dayType(plan)}</span>
+              <button class="remove-day" title="Удалить день">✕</button>
+            </div>
+          </header>
+          <div class="slots">
+            <div class="slot" data-date="${date}" data-slot="main">
+              <div class="slot-label"><span>Основное событие</span><span class="slot-hint">задаёт тип дня</span></div>
+            </div>
+            <div class="slot" data-date="${date}" data-slot="extra">
+              <div class="slot-label"><span>Дополнительное</span><span class="slot-hint">оставьте лёгким</span></div>
+            </div>
+          </div>
+        `;
+
+        const mainSlot=day.querySelector('[data-slot="main"]');
+        const extraSlot=day.querySelector('[data-slot="extra"]');
+        fillSlot(mainSlot,mainEv,plan, "main");
+        fillSlot(extraSlot,extraEv,plan, "extra");
+
+        day.querySelector(".remove-day").addEventListener("click",()=>removeDay(date));
+        [mainSlot,extraSlot].forEach(slot=>attachSlotDnD(slot));
+
+        daysContainer.appendChild(day);
+      });
+    }
+
+    function fillSlot(slot,ev,plan,slotName){
+      if(!ev){
+        slot.insertAdjacentHTML("beforeend",`<div class="slot-empty">${slotName==="main"?"Перетащите сюда главное событие дня":"Можно оставить свободным или добавить совместимое событие"}</div>`);
+        return;
+      }
+      const group=groups[ev.group];
+      const card=document.createElement("div");
+      card.className="planned-event";
+      card.draggable=true;
+      card.dataset.eventId=ev.id;
+      card.style.setProperty("--event-color",group.color);
+      card.innerHTML=`
+        <div>${group.icon}</div>
+        <div>
+          <div class="planned-title">${escapeHtml(ev.name)}</div>
+          ${ev.note?`<div class="planned-note">${escapeHtml(ev.note)}</div>`:""}
+          <div class="planned-tags">
+            <span class="tag">${group.label}</span>
+            <span class="tag">${durationLabel(ev.duration)}</span>
+            <span class="tag">нагрузка ${ev.intensity}</span>
+            ${ev.outdoor?`<span class="tag">по погоде</span>`:""}
+          </div>
+        </div>
+        <button class="mini-btn" title="Убрать из дня">✕</button>
+      `;
+      card.addEventListener("dragstart",e=>{
+        draggedEventId=ev.id;
+        draggedFromSlot={date:slot.dataset.date,slot:slot.dataset.slot};
+        e.dataTransfer.effectAllowed="move";
+        e.dataTransfer.setData("text/plain",ev.id);
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragend",()=>card.classList.remove("dragging"));
+      card.querySelector(".mini-btn").addEventListener("click",()=>{
+        state.plan[slot.dataset.date][slot.dataset.slot]=null;
+        cleanupDayPlan(slot.dataset.date);
+        saveState("Событие убрано");
+        render();
+      });
+      card.addEventListener("dblclick",()=>openEditEvent(ev.id));
+      slot.appendChild(card);
+
+      const main=getEvent(plan.main), extra=getEvent(plan.extra);
+      if(main && extra && !areCompatible(main,extra)){
+        slot.insertAdjacentHTML("beforeend",`<div class="slot-warning">Сочетание перегружает день. Лучше перенести одно из событий.</div>`);
+      }
+    }
+
+    function attachSlotDnD(slot){
+      slot.addEventListener("dragover",e=>{
+        e.preventDefault();
+        e.dataTransfer.dropEffect="move";
+        slot.classList.add("drag-over");
+      });
+      slot.addEventListener("dragleave",()=>slot.classList.remove("drag-over"));
+      slot.addEventListener("drop",e=>{
+        e.preventDefault();
+        slot.classList.remove("drag-over");
+        const eventId=e.dataTransfer.getData("text/plain") || draggedEventId;
+        placeEvent(eventId,slot.dataset.date,slot.dataset.slot);
+      });
+    }
+
+    function placeEvent(eventId,date,slotName){
+      const ev=getEvent(eventId);
+      if(!ev) return;
+
+      if(ev.fixedDate && ev.fixedDate!==date){
+        showToast(`У события фиксированная дата: ${formatDate(ev.fixedDate)}`);
+        return;
+      }
+
+      // Удаляем событие из прежнего места.
+      Object.keys(state.plan).forEach(d=>{
+        ["main","extra"].forEach(s=>{
+          if(state.plan[d]?.[s]===eventId) state.plan[d][s]=null;
+        });
+        cleanupDayPlan(d);
+      });
+
+      if(!state.plan[date]) state.plan[date]={main:null,extra:null};
+
+      // Если слот занят, меняем события местами, когда перенос идёт из другого слота.
+      const displaced=state.plan[date][slotName];
+      state.plan[date][slotName]=eventId;
+
+      if(displaced && draggedFromSlot){
+        if(!state.plan[draggedFromSlot.date]) state.plan[draggedFromSlot.date]={main:null,extra:null};
+        state.plan[draggedFromSlot.date][draggedFromSlot.slot]=displaced;
+      }
+
+      // Если дополнительное событие без основного — автоматически делаем его основным.
+      if(slotName==="extra" && !state.plan[date].main){
+        state.plan[date].main=eventId;
+        state.plan[date].extra=null;
+      }
+
+      saveState("Цепочка обновлена");
+      render();
+
+      const plan=state.plan[date];
+      const main=getEvent(plan.main),extra=getEvent(plan.extra);
+      if(main && extra && !areCompatible(main,extra)){
+        showToast("События поставлены, но день перегружен");
+      }else{
+        showToast(`Событие поставлено на ${formatDate(date)}`);
+      }
+    }
+
+    function cleanupDayPlan(date){
+      const p=state.plan[date];
+      if(!p) return;
+      if(!p.main && p.extra){
+        p.main=p.extra;p.extra=null;
+      }
+      if(!p.main && !p.extra) delete state.plan[date];
+    }
+
+    function getEvent(id){return state.events.find(ev=>ev.id===id) || null}
+
+    function durationLabel(value){
+      return value==="full"?"весь день":value==="half"?"полдня":"1–2 часа";
+    }
+
+    function dayLoad(plan){
+      const a=getEvent(plan?.main),b=getEvent(plan?.extra);
+      return (a?.intensity||0)+(b?.intensity||0);
+    }
+
+    function dayType(plan){
+      const main=getEvent(plan?.main);
+      if(!main) return "Свободный день";
+      return groups[main.group]?.label || "Смешанный день";
+    }
+
+    function areCompatible(a,b){
+      if(!a || !b) return true;
+      if(a.duration==="full" && b.duration!=="short") return false;
+      if(b.duration==="full" && a.duration!=="short") return false;
+      if(a.group==="big" && b.group==="big") return false;
+
+      const pair=new Set([a.group,b.group]);
+      if(pair.has("social") && pair.has("chores")) return false;
+      if(pair.has("social") && pair.has("big")) return false;
+
+      // Общение хорошо сочетается только с короткой лёгкой активностью, а не с полноценной тренировкой.
+      if(a.group==="social" && b.group==="active" && !(b.duration==="short" && b.intensity<=2)) return false;
+      if(b.group==="social" && a.group==="active" && !(a.duration==="short" && a.intensity<=2)) return false;
+
+      if(a.group==="chores" && b.group==="calm" && (a.name.toLowerCase().includes("сарай") || b.name.toLowerCase().includes("годовщ"))) return false;
+      if(b.group==="chores" && a.group==="calm" && (b.name.toLowerCase().includes("сарай") || a.name.toLowerCase().includes("годовщ"))) return false;
+      if(a.intensity+b.intensity>6) return false;
+      return true;
+    }
+
+    function updateMetrics(){
+      const used=usedIds().size;
+      const slots=state.days.length*2;
+      document.getElementById("metricDays").textContent=state.days.length;
+      document.getElementById("metricUsed").textContent=used;
+      document.getElementById("metricFree").textContent=Math.max(0,slots-used);
+      document.getElementById("metricScore").textContent=state.days.length?calculateBalanceScore():"—";
+    }
+
+    function calculateBalanceScore(){
+      let score=100;
+      let prevLoad=0;
+      let prevGroup=null;
+      state.days.forEach(date=>{
+        const p=state.plan[date]||{};
+        const main=getEvent(p.main),extra=getEvent(p.extra);
+        const load=dayLoad(p);
+        if(load>=7) score-=8;
+        if(prevLoad>=4 && load>=4) score-=9;
+        if(main && prevGroup===main.group && ["big","active","social"].includes(main.group)) score-=5;
+        if(main && extra && !areCompatible(main,extra)) score-=10;
+        if(!main) score+=1;
+        prevLoad=load;
+        prevGroup=main?.group||null;
+      });
+      return Math.max(0,Math.min(100,Math.round(score)));
+    }
+
+    function autoPlan(){
+      if(Object.keys(state.plan).length){
+        const ok=confirm("Автосборка заменит текущую цепочку. Продолжить?");
+        if(!ok) return;
+      }
+
+      state.plan={};
+      const availableDays=[...state.days];
+      const events=[...state.events];
+
+      // 1. Фиксированные даты.
+      events.filter(ev=>ev.fixedDate && availableDays.includes(ev.fixedDate)).forEach(ev=>{
+        if(!state.plan[ev.fixedDate]) state.plan[ev.fixedDate]={main:null,extra:null};
+        if(!state.plan[ev.fixedDate].main) state.plan[ev.fixedDate].main=ev.id;
+        else if(!state.plan[ev.fixedDate].extra && areCompatible(getEvent(state.plan[ev.fixedDate].main),ev)) state.plan[ev.fixedDate].extra=ev.id;
+      });
+
+      const fixedIds=new Set(Object.values(state.plan).flatMap(p=>[p.main,p.extra]).filter(Boolean));
+      const remaining=events.filter(ev=>!fixedIds.has(ev.id))
+        .sort((a,b)=>{
+          const durRank={full:3,half:2,short:1};
+          return (durRank[b.duration]-durRank[a.duration]) || (b.intensity-a.intensity);
+        });
+
+      // 2. Основные события: большие и средние.
+      const primaries=remaining.filter(ev=>ev.duration!=="short" || ev.group==="big");
+      const extras=remaining.filter(ev=>!primaries.includes(ev));
+
+      primaries.forEach(ev=>{
+        const best=findBestPlacement(ev,"main");
+        if(best) assignDirect(ev.id,best.date,best.slot);
+      });
+
+      // 3. Короткие события и всё, что осталось, стараемся поставить дополнением.
+      extras.forEach(ev=>{
+        let best=findBestPlacement(ev,"extra");
+        if(!best) best=findBestPlacement(ev,"main");
+        if(best) assignDirect(ev.id,best.date,best.slot);
+      });
+
+      // 4. События, которые не влезли, пробуем во второй слот даже с мягким нарушением.
+      const used=usedIds();
+      remaining.filter(ev=>!used.has(ev.id)).forEach(ev=>{
+        const open=state.days.find(date=>{
+          const p=state.plan[date]||{};
+          return !p.extra && p.main;
+        });
+        if(open) assignDirect(ev.id,open,"extra");
+      });
+
+      saveState("Последовательность собрана");
+      render();
+      showToast("Готово: события распределены по нагрузке и совместимости");
+    }
+
+    function findBestPlacement(ev,preferredSlot){
+      let best=null;
+      const mode=balanceMode.value;
+      const strictFactor=mode==="strict"?1.55:mode==="soft"?.7:1;
+
+      state.days.forEach((date,index)=>{
+        if(ev.fixedDate && ev.fixedDate!==date) return;
+        const p=state.plan[date]||{main:null,extra:null};
+
+        const slots=preferredSlot==="extra"?["extra"]:["main","extra"];
+        slots.forEach(slot=>{
+          if(p[slot]) return;
+          if(slot==="extra" && !p.main) return;
+
+          const main=slot==="main"?ev:getEvent(p.main);
+          const extra=slot==="extra"?ev:getEvent(p.extra);
+          if(main && extra && !areCompatible(main,extra)) return;
+
+          const prevDate=state.days[index-1];
+          const nextDate=state.days[index+1];
+          const prevPlan=prevDate?(state.plan[prevDate]||{}):{};
+          const nextPlan=nextDate?(state.plan[nextDate]||{}):{};
+          const prevMain=getEvent(prevPlan.main);
+          const nextMain=getEvent(nextPlan.main);
+          const dayEvent=slot==="main"?ev:getEvent(p.main);
+          const load=(slot==="main"?ev.intensity:(getEvent(p.main)?.intensity||0)+ev.intensity);
+
+          let score=0;
+          if(slot==="extra") score-=5;
+          if(dayEvent?.group==="big" && [prevMain?.group,nextMain?.group].includes("big")) score+=22*strictFactor;
+          if(dayEvent && prevMain && dayEvent.group===prevMain.group && ["big","active","social"].includes(dayEvent.group)) score+=10*strictFactor;
+          if(load>=7) score+=17*strictFactor;
+          if(ev.group==="big"){
+            const weekday=parseLocalDate(date).getDay();
+            if([0,6].includes(weekday)) score-=3;
+          }
+          if(ev.group==="rest" || ev.group==="calm"){
+            if((prevMain?.intensity||0)>=4) score-=7;
+          }
+          if(ev.group==="social"){
+            const weekday=parseLocalDate(date).getDay();
+            if([0,6].includes(weekday)) score-=3;
+            if(prevMain?.group==="big" || prevMain?.intensity>=5) score+=4*strictFactor;
+          }
+          score+=index*.03;
+
+          if(!best || score<best.score) best={date,slot,score};
+        });
+      });
+      return best;
+    }
+
+    function assignDirect(eventId,date,slot){
+      if(!state.plan[date]) state.plan[date]={main:null,extra:null};
+      if(slot==="extra" && !state.plan[date].main) slot="main";
+      state.plan[date][slot]=eventId;
+    }
+
+    function clearPlan(){
+      if(!Object.keys(state.plan).length) return;
+      if(!confirm("Очистить всю сформированную цепочку?")) return;
+      state.plan={};
+      saveState("Цепочка очищена");
+      render();
+      showToast("Все события возвращены в каталог");
+    }
+
+    function applyRange(){
+      const start=startDateInput.value,end=endDateInput.value;
+      if(!start || !end || parseLocalDate(end)<parseLocalDate(start)){
+        showToast("Проверьте даты: конец должен быть не раньше начала");
+        return;
+      }
+      const newDays=makeDateRange(start,end);
+      const removed=state.days.filter(d=>!newDays.includes(d));
+      if(removed.some(d=>state.plan[d]?.main || state.plan[d]?.extra)){
+        const ok=confirm("В удаляемых датах есть события. Они вернутся в каталог. Продолжить?");
+        if(!ok) return;
+      }
+      removed.forEach(d=>delete state.plan[d]);
+      state.startDate=start;
+      state.endDate=end;
+      state.days=newDays;
+      saveState("Диапазон изменён");
+      render();
+      showToast(`Диапазон: ${newDays.length} дней`);
+    }
+
+    function addDay(){
+      const last=state.days.length?parseLocalDate(state.days[state.days.length-1]):parseLocalDate(endDateInput.value||startDateInput.value);
+      const next=last||new Date(2026,7,5);
+      if(state.days.length) next.setDate(next.getDate()+1);
+      const iso=toISO(next);
+      if(!state.days.includes(iso)) state.days.push(iso);
+      state.days.sort();
+      state.startDate=state.days[0];
+      state.endDate=state.days[state.days.length-1];
+      saveState("День добавлен");
+      render();
+    }
+
+    function removeDay(date){
+      const p=state.plan[date];
+      if((p?.main || p?.extra) && !confirm(`Удалить ${formatDate(date)}? События этого дня вернутся в каталог.`)) return;
+      state.days=state.days.filter(d=>d!==date);
+      delete state.plan[date];
+      if(state.days.length){
+        state.startDate=state.days[0];
+        state.endDate=state.days[state.days.length-1];
+      }
+      saveState("День удалён");
+      render();
+    }
+
+    function fillGroupSelect(){
+      eventGroup.innerHTML=Object.entries(groups).map(([k,g])=>`<option value="${k}">${g.label}</option>`).join("");
+    }
+
+    function openNewEvent(){
+      editingEventId=null;
+      eventDialogTitle.textContent="Новое событие";
+      eventName.value="";
+      eventGroup.value="calm";
+      eventDuration.value="half";
+      eventIntensity.value="2";
+      eventFixedDate.value="";
+      eventNote.value="";
+      eventOutdoor.checked=false;
+      deleteEventBtn.hidden=true;
+      eventDialog.showModal();
+      setTimeout(()=>eventName.focus(),50);
+    }
+
+    function openEditEvent(id){
+      const ev=getEvent(id); if(!ev) return;
+      editingEventId=id;
+      eventDialogTitle.textContent="Редактировать событие";
+      eventName.value=ev.name;
+      eventGroup.value=ev.group;
+      eventDuration.value=ev.duration;
+      eventIntensity.value=String(ev.intensity);
+      eventFixedDate.value=ev.fixedDate||"";
+      eventNote.value=ev.note||"";
+      eventOutdoor.checked=!!ev.outdoor;
+      deleteEventBtn.hidden=false;
+      eventDialog.showModal();
+      setTimeout(()=>eventName.focus(),50);
+    }
+
+    function saveEvent(){
+      const name=eventName.value.trim();
+      if(!name){showToast("Введите название события");return}
+      const payload={
+        name,
+        group:eventGroup.value,
+        duration:eventDuration.value,
+        intensity:Number(eventIntensity.value),
+        fixedDate:eventFixedDate.value,
+        note:eventNote.value.trim(),
+        outdoor:eventOutdoor.checked
+      };
+      if(editingEventId){
+        const ev=getEvent(editingEventId);
+        Object.assign(ev,payload);
+        if(ev.fixedDate){
+          Object.keys(state.plan).forEach(date=>{
+            ["main","extra"].forEach(slot=>{
+              if(state.plan[date]?.[slot]===ev.id && date!==ev.fixedDate) state.plan[date][slot]=null;
+            });
+            cleanupDayPlan(date);
+          });
+        }
+        saveState("Событие обновлено");
+      }else{
+        state.events.push({id:crypto.randomUUID?crypto.randomUUID():`ev-${Date.now()}`,...payload});
+        saveState("Событие добавлено");
+      }
+      eventDialog.close();
+      render();
+      showToast(editingEventId?"Событие обновлено":"Событие добавлено");
+    }
+
+    function deleteEvent(){
+      if(!editingEventId) return;
+      const ev=getEvent(editingEventId);
+      if(!ev || !confirm(`Удалить событие «${ev.name}»?`)) return;
+      state.events=state.events.filter(item=>item.id!==editingEventId);
+      Object.keys(state.plan).forEach(date=>{
+        ["main","extra"].forEach(slot=>{
+          if(state.plan[date]?.[slot]===editingEventId) state.plan[date][slot]=null;
+        });
+        cleanupDayPlan(date);
+      });
+      saveState("Событие удалено");
+      eventDialog.close();
+      render();
+      showToast("Событие удалено");
+    }
+
+    function resetAll(){
+      if(!confirm("Вернуть исходные события, даты и очистить все изменения?")) return;
+      state=initialState();
+      saveState("Исходные данные восстановлены");
+      render();
+      showToast("Планировщик возвращён к исходному виду");
+    }
+
+    function escapeHtml(value){
+      return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function showToast(message){
+      toast.textContent=message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer=setTimeout(()=>toast.classList.remove("show"),2200);
+    }
+
+    document.getElementById("autoPlanBtn").addEventListener("click",autoPlan);
+    document.getElementById("clearPlanBtn").addEventListener("click",clearPlan);
+    document.getElementById("printBtn").addEventListener("click",()=>window.print());
+    document.getElementById("applyRangeBtn").addEventListener("click",applyRange);
+    document.getElementById("addDayBtn").addEventListener("click",addDay);
+    document.getElementById("addEventBtn").addEventListener("click",openNewEvent);
+    document.getElementById("resetBtn").addEventListener("click",resetAll);
+    document.getElementById("closeDialogBtn").addEventListener("click",()=>eventDialog.close());
+    document.getElementById("cancelDialogBtn").addEventListener("click",()=>eventDialog.close());
+    document.getElementById("saveEventBtn").addEventListener("click",saveEvent);
+    deleteEventBtn.addEventListener("click",deleteEvent);
+    balanceMode.addEventListener("change",()=>{state.balanceMode=balanceMode.value;saveState("Режим изменён");updateMetrics()});
+
+    eventDialog.addEventListener("click",e=>{
+      const r=eventDialog.getBoundingClientRect();
+      if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) eventDialog.close();
+    });
+
+    fillGroupSelect();
+    render();
+  </script>
+</body>
+</html>
