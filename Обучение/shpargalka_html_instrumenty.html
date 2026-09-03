@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шпаргалка: виды полезных HTML-инструментов</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#15171c; --muted:#666d78;
+  --line:#e3e6ec; --accent:#2f6fed; --accent2:#eef4ff;
+  --good:#0d7a55; --warn:#8a5a00;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1180px;margin:auto;padding:28px 18px 60px}
+.hero{background:linear-gradient(135deg,#101522,#263a64);color:#fff;border-radius:24px;padding:28px;box-shadow:0 10px 28px rgba(17,28,51,.16)}
+.hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,46px)}
+.hero p{margin:0;max-width:840px;color:#dce5f6;line-height:1.55}
+.toolbar{display:grid;grid-template-columns:1fr;gap:12px;margin:18px 0}
+.search{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:14px;font-size:16px;background:#fff}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+button.filter{border:1px solid var(--line);background:#fff;padding:10px 13px;border-radius:999px;cursor:pointer;font-weight:650}
+button.filter.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.note{background:#fff7df;border:1px solid #f0db9c;border-radius:16px;padding:14px 16px;margin:16px 0 22px;color:#5f4910}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 3px 12px rgba(20,30,55,.04)}
+.card h2{font-size:19px;margin:0 0 8px}
+.badge{display:inline-flex;align-items:center;background:var(--accent2);color:#2858b8;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:750;margin-bottom:10px}
+.card p{margin:7px 0;color:var(--muted);line-height:1.5}
+.example{margin-top:10px;padding:12px;border-radius:12px;background:#f8f9fc;border:1px solid var(--line)}
+.example b{color:var(--text)}
+.use{margin-top:12px;font-size:13px;color:var(--good);font-weight:700}
+.combo{margin-top:26px;background:#111827;color:#f7f9fd;border-radius:22px;padding:22px}
+.combo h2{margin-top:0}
+.combo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.combo-item{background:#1c2535;border:1px solid #334055;border-radius:14px;padding:13px;line-height:1.45}
+.footer{margin-top:24px;color:var(--muted);font-size:13px;text-align:center}
+.hidden{display:none!important}
+@media(max-width:760px){
+  .grid,.combo-grid{grid-template-columns:1fr}
+  .wrap{padding:16px 12px 40px}
+  .hero{padding:22px 18px;border-radius:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Шпаргалка по полезным HTML‑инструментам</h1>
+    <p>Не только «сайт» и «лендинг». Ниже — основные форматы, которые можно собрать в одной HTML‑странице: что они делают, когда полезны и пример применения.</p>
+  </section>
+
+  <div class="toolbar">
+    <input id="search" class="search" placeholder="Поиск: калькулятор, задачи, выбор, карта, инструкция…">
+    <div class="filters">
+      <button class="filter active" data-filter="all">Все</button>
+      <button class="filter" data-filter="find">Найти</button>
+      <button class="filter" data-filter="understand">Понять</button>
+      <button class="filter" data-filter="calc">Посчитать</button>
+      <button class="filter" data-filter="compare">Сравнить</button>
+      <button class="filter" data-filter="choose">Выбрать</button>
+      <button class="filter" data-filter="do">Сделать</button>
+      <button class="filter" data-filter="control">Контролировать</button>
+    </div>
+  </div>
+
+  <div class="note"><b>Главный принцип:</b> хороший веб‑инструмент отвечает на один из вопросов — <b>найти → понять → посчитать → сравнить → выбрать → сделать → проконтролировать</b>.</div>
+
+  <section class="grid" id="grid">
+
+    <article class="card" data-cat="understand">
+      <div class="badge">ПОНЯТЬ</div>
+      <h2>Сайт</h2>
+      <p>Несколько связанных разделов по одной теме или организации.</p>
+      <div class="example"><b>Пример:</b> сайт компании: услуги, оборудование, объекты, документы, контакты.</div>
+      <div class="use">Когда: информации много и она делится на разделы.</div>
+    </article>
+
+    <article class="card" data-cat="understand">
+      <div class="badge">ПОНЯТЬ</div>
+      <h2>Лендинг</h2>
+      <p>Одна страница, которая последовательно раскрывает одну идею или предложение.</p>
+      <div class="example"><b>Пример:</b> презентация нового датчика: проблема → решение → характеристики → кейсы → заявка.</div>
+      <div class="use">Когда: нужно продать или понятно объяснить одну вещь.</div>
+    </article>
+
+    <article class="card" data-cat="calc">
+      <div class="badge">ПОСЧИТАТЬ</div>
+      <h2>Калькулятор</h2>
+      <p>Пользователь вводит числа, система сразу считает результат.</p>
+      <div class="example"><b>Пример:</b> длина линии + число датчиков + кабель → падение напряжения и требуемый блок питания.</div>
+      <div class="use">Когда: есть формула или повторяющийся расчёт.</div>
+    </article>
+
+    <article class="card" data-cat="choose calc">
+      <div class="badge">ВЫБРАТЬ</div>
+      <h2>Конфигуратор</h2>
+      <p>По параметрам собирает подходящую комплектацию.</p>
+      <div class="example"><b>Пример:</b> объект → длина трассы → температура → число датчиков → рекомендуемые кабели, БП и усилители.</div>
+      <div class="use">Когда: итог зависит от нескольких характеристик.</div>
+    </article>
+
+    <article class="card" data-cat="do">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Пошаговый мастер / Wizard</h2>
+      <p>Ведёт человека по процессу шаг за шагом и не даёт потеряться.</p>
+      <div class="example"><b>Пример:</b> сборка датчика: QR → подготовка → сборка → фокусировка → тест → калибровка.</div>
+      <div class="use">Когда: важна правильная последовательность действий.</div>
+    </article>
+
+    <article class="card" data-cat="control">
+      <div class="badge">КОНТРОЛЬ</div>
+      <h2>Дашборд</h2>
+      <p>Показывает текущее состояние системы на одном экране.</p>
+      <div class="example"><b>Пример:</b> 89 датчиков: норма / предупреждение / авария, графики, последние события.</div>
+      <div class="use">Когда: надо быстро понять «что сейчас происходит».</div>
+    </article>
+
+    <article class="card" data-cat="control">
+      <div class="badge">КОНТРОЛЬ</div>
+      <h2>Трекер</h2>
+      <p>Следит за прогрессом или изменением показателей во времени.</p>
+      <div class="example"><b>Пример:</b> тренировки: подтягивания по дням, рекорд, цель, серия занятий.</div>
+      <div class="use">Когда: важна динамика, а не одно значение.</div>
+    </article>
+
+    <article class="card" data-cat="do control">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Планировщик</h2>
+      <p>Помогает разложить действия по времени.</p>
+      <div class="example"><b>Пример:</b> монтаж объекта: люди, этапы, даты, зависимости, дедлайны.</div>
+      <div class="use">Когда: нужно управлять будущими действиями.</div>
+    </article>
+
+    <article class="card" data-cat="do control">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Чек‑лист</h2>
+      <p>Короткий перечень обязательных действий с отметками выполнения.</p>
+      <div class="example"><b>Пример:</b> выезд инженера: приборы, кабели, фото, контроль питания, акт.</div>
+      <div class="use">Когда: ошибка чаще возникает из‑за пропуска шага.</div>
+    </article>
+
+    <article class="card" data-cat="do understand">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Интерактивная инструкция</h2>
+      <p>Текст + фото + раскрывающиеся подсказки + проверки.</p>
+      <div class="example"><b>Пример:</b> монтаж гидронивелира с кнопкой «что проверить, если показания нестабильны».</div>
+      <div class="use">Когда: обычный PDF слишком неудобен.</div>
+    </article>
+
+    <article class="card" data-cat="find understand">
+      <div class="badge">НАЙТИ</div>
+      <h2>Справочник</h2>
+      <p>Быстрый доступ к большому набору коротких сведений.</p>
+      <div class="example"><b>Пример:</b> типовые неисправности датчиков → симптомы → причины → решение.</div>
+      <div class="use">Когда: человек знает, что ищет, но не помнит детали.</div>
+    </article>
+
+    <article class="card" data-cat="find understand">
+      <div class="badge">НАЙТИ</div>
+      <h2>База знаний</h2>
+      <p>Связанные инструкции, статьи, схемы, FAQ и документы.</p>
+      <div class="example"><b>Пример:</b> внутренняя база компании по монтажу, ремонту, настройке и объектам.</div>
+      <div class="use">Когда: знаний уже много и они постоянно накапливаются.</div>
+    </article>
+
+    <article class="card" data-cat="find compare">
+      <div class="badge">НАЙТИ</div>
+      <h2>Каталог</h2>
+      <p>Карточки объектов с фильтрами и сортировкой.</p>
+      <div class="example"><b>Пример:</b> каталог датчиков: номер, версия, дата выпуска, статус, ремонт, объект.</div>
+      <div class="use">Когда: есть много однотипных сущностей.</div>
+    </article>
+
+    <article class="card" data-cat="find understand">
+      <div class="badge">НАЙТИ</div>
+      <h2>Карта</h2>
+      <p>Показывает информацию, привязанную к местности.</p>
+      <div class="example"><b>Пример:</b> объекты мониторинга на карте России со статусом каждого объекта.</div>
+      <div class="use">Когда: география сама по себе важна.</div>
+    </article>
+
+    <article class="card" data-cat="understand control">
+      <div class="badge">ПОНЯТЬ</div>
+      <h2>Таймлайн</h2>
+      <p>Последовательно показывает события по времени.</p>
+      <div class="example"><b>Пример:</b> история объекта: монтаж → авария → ремонт → поверка → модернизация.</div>
+      <div class="use">Когда: важно понимать причинно‑следственную последовательность.</div>
+    </article>
+
+    <article class="card" data-cat="compare">
+      <div class="badge">СРАВНИТЬ</div>
+      <h2>Сравниватель</h2>
+      <p>Ставит варианты рядом по одинаковым критериям.</p>
+      <div class="example"><b>Пример:</b> три модели модема: температура, протокол, питание, цена, дальность.</div>
+      <div class="use">Когда: вариантов немного, но параметры отличаются.</div>
+    </article>
+
+    <article class="card" data-cat="choose compare">
+      <div class="badge">ВЫБРАТЬ</div>
+      <h2>Матрица решений</h2>
+      <p>Оценивает варианты по нескольким критериям и весам.</p>
+      <div class="example"><b>Пример:</b> выбрать подрядчика по цене, сроку, опыту, риску и гарантии.</div>
+      <div class="use">Когда: решение многокритериальное и «на глаз» спорное.</div>
+    </article>
+
+    <article class="card" data-cat="choose">
+      <div class="badge">ВЫБРАТЬ</div>
+      <h2>Дерево решений</h2>
+      <p>Вопрос → ветка → следующий вопрос → конкретное действие.</p>
+      <div class="example"><b>Пример:</b> «датчик не отвечает» → есть питание? → есть RS‑485? → адрес виден? → действие.</div>
+      <div class="use">Когда: диагностику можно формализовать.</div>
+    </article>
+
+    <article class="card" data-cat="choose">
+      <div class="badge">ВЫБРАТЬ</div>
+      <h2>Навигатор по теме</h2>
+      <p>Начинает не с разделов, а с вопроса «что тебе сейчас нужно?».</p>
+      <div class="example"><b>Пример:</b> «Я проектирую / монтирую / ремонтирую / анализирую данные» → свой набор инструментов.</div>
+      <div class="use">Когда: пользователь не знает, в каком разделе искать.</div>
+    </article>
+
+    <article class="card" data-cat="find">
+      <div class="badge">НАЙТИ</div>
+      <h2>Поиск по собственной базе</h2>
+      <p>Ищет по документам, карточкам или журналу.</p>
+      <div class="example"><b>Пример:</b> вводишь «ДГН‑19 0247» → вся история сборки, ремонта и объектов.</div>
+      <div class="use">Когда: данных столько, что меню уже не спасает.</div>
+    </article>
+
+    <article class="card" data-cat="do">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Форма / анкета</h2>
+      <p>Структурированно собирает данные от пользователя.</p>
+      <div class="example"><b>Пример:</b> акт осмотра: объект, дата, показания, фото, замечания, подпись.</div>
+      <div class="use">Когда: важно получать однотипные данные без хаоса.</div>
+    </article>
+
+    <article class="card" data-cat="understand choose">
+      <div class="badge">ПОНЯТЬ</div>
+      <h2>Тест / опрос</h2>
+      <p>Несколько вопросов → результат, оценка или рекомендация.</p>
+      <div class="example"><b>Пример:</b> оценка готовности объекта к автоматизированному мониторингу.</div>
+      <div class="use">Когда: вывод зависит от ответов пользователя.</div>
+    </article>
+
+    <article class="card" data-cat="do">
+      <div class="badge">СДЕЛАТЬ</div>
+      <h2>Генератор</h2>
+      <p>Из введённых данных создаёт готовый результат.</p>
+      <div class="example"><b>Пример:</b> параметры объекта → готовое техническое задание или акт в шаблоне.</div>
+      <div class="use">Когда: много однотипных документов или текстов.</div>
+    </article>
+
+    <article class="card" data-cat="calc understand">
+      <div class="badge">ПОСЧИТАТЬ</div>
+      <h2>Симулятор</h2>
+      <p>Меняешь параметры и сразу видишь последствия.</p>
+      <div class="example"><b>Пример:</b> изменяешь жёсткость грунта → видишь прогноз осадок и индекс состояния.</div>
+      <div class="use">Когда: важно исследовать «что будет, если…».</div>
+    </article>
+
+    <article class="card" data-cat="control">
+      <div class="badge">КОНТРОЛЬ</div>
+      <h2>Монитор / пульт</h2>
+      <p>Показывает состояние объектов и выделяет отклонения.</p>
+      <div class="example"><b>Пример:</b> зелёный — норма, жёлтый — тренд, красный — превышение порога.</div>
+      <div class="use">Когда: система работает постоянно и требует реакции.</div>
+    </article>
+
+    <article class="card" data-cat="do control">
+      <div class="badge">КОНТРОЛЬ</div>
+      <h2>Канбан</h2>
+      <p>Карточки перемещаются между стадиями процесса.</p>
+      <div class="example"><b>Пример:</b> датчики: подготовка → сборка → тест → калибровка → готово.</div>
+      <div class="use">Когда: нужно видеть поток работы.</div>
+    </article>
+
+    <article class="card" data-cat="control find">
+      <div class="badge">КОНТРОЛЬ</div>
+      <h2>Журнал</h2>
+      <p>Хронологические записи с поиском, фильтрами и ответственными.</p>
+      <div class="example"><b>Пример:</b> журнал обслуживания оборудования: кто, когда, что делал, какие были значения.</div>
+      <div class="use">Когда: нужна история и ответственность.</div>
+    </article>
+
+  </section>
+
+  <section class="combo">
+    <h2>Сильные комбинации</h2>
+    <div class="combo-grid">
+      <div class="combo-item"><b>Производство:</b><br>Wizard + чек‑лист + QR + журнал + дашборд.</div>
+      <div class="combo-item"><b>Мониторинг:</b><br>Карта + дашборд + графики + таймлайн + уведомления.</div>
+      <div class="combo-item"><b>Выбор решения:</b><br>Фильтры + сравниватель + матрица решений + калькулятор.</div>
+      <div class="combo-item"><b>Техническая поддержка:</b><br>Справочник + дерево диагностики + поиск + журнал ремонтов.</div>
+      <div class="combo-item"><b>Обучение:</b><br>Инструкция + тест + прогресс + подсказки + чек‑лист.</div>
+      <div class="combo-item"><b>Научный проект:</b><br>Дашборд + симулятор + сравнение «модель ↔ факт» + таймлайн.</div>
+    </div>
+  </section>
+
+  <div class="footer">Шпаргалка: выбирай формат не по внешнему виду, а по задаче пользователя.</div>
+</div>
+
+<script>
+const cards=[...document.querySelectorAll('.card')];
+const search=document.getElementById('search');
+let active='all';
+
+function apply(){
+  const q=search.value.trim().toLowerCase();
+  cards.forEach(c=>{
+    const cats=(c.dataset.cat||'').split(' ');
+    const catOK=active==='all'||cats.includes(active);
+    const textOK=!q||c.innerText.toLowerCase().includes(q);
+    c.classList.toggle('hidden',!(catOK&&textOK));
+  });
+}
+search.addEventListener('input',apply);
+document.querySelectorAll('.filter').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    active=btn.dataset.filter;
+    apply();
+  });
+});
+</script>
+</body>
+</html>
